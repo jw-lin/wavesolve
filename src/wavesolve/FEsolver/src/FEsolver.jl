@@ -4,6 +4,28 @@ module FEsolver
 using PythonCall
 using SparseArrays
 using Arpack
+using Pardiso
+
+function solve_scalar(A::SparseMatrixCSC,B::SparseMatrixCSC,est_eigval::Float64,Nmax::Int64)
+    w,v = eigs(A, B, which=:LM,nev=Nmax,sigma=est_eigval,explicittransform=:none)
+    return w,v
+end
+
+function solve_vector(A::SparseMatrixCSC,B::SparseMatrixCSC,est_eigval::Float64,Nmax::Int64,solve_mode::String)
+    if solve_mode == "transform"
+        ps = MKLPardisoSolver()
+        C = solve(ps,A .- est_eigval*B,Array(B))
+        w,v = eigs(C,which=:SR,nev=Nmax)
+        w = est_eigval .+ (1 ./ w)
+    elseif solve_mode == "straight"
+        w,v = eigs(A, B, which=:LM,nev=Nmax,sigma=est_eigval,explicittransform=:none)
+    else
+        w = nothing
+        v = nothing
+    end
+    return w,v
+end
+#region scalar
 
 function compute_NN_dNdN(t::PyArray{Float64,2})
     return compute_NN_dNdN(pyconvert(Array{Float64,2},t))
@@ -78,19 +100,71 @@ function construct_AB_order2_sparse(points:: PyArray{Float64,2},tris::PyArray{UI
     return construct_AB_order2_sparse(pyconvert(Array{Float64,2},points),pyconvert(Array{Int64,2},tris),pyconvert(Array{Float64,1},IORs),k2)
 end
 
-function solve(A::SparseMatrixCSC,B::SparseMatrixCSC,est_eigval::Float64,Nmax::Int64)
-    w,v = eigs(A, B, which=:LM,nev=Nmax,sigma=est_eigval,explicittransform=:none)
-    return w,v
-end
-
 function solve_waveguide(points:: PyArray{Float64,2},tris::PyArray{UInt64,2}, IORs::PyArray{Float64,1}, k2::Float64,est_eigval::Float64,Nmax::Int64)
     A,B = construct_AB_order2_sparse(points,tris,IORs,k2)
-    w,v = solve(A,B,est_eigval,Nmax)
+    w,v = solve_scalar(A,B,est_eigval,Nmax)
     return w,v
 end
 
+#endregion
 
-## FEval stuff for QT elements, scalar solving ##
+#region vector
+
+function solve_waveguide_vec(points:: PyArray{Float64,2},tris::PyArray{UInt64,2},edges::PyArray{UInt32,2},IORs::PyArray{Float64,1}, k2::Float64,Nedges::Int64, est_eigval::Float64,Nmax::Int64,solve_mode::String = "transform")
+    A,B = construct_AB_vec(points,tris,edges,IORs,k2,Nedges)
+    w,v = solve_vector(A,B,est_eigval,Nmax,solve_mode)
+    return w,v
+end
+
+function construct_AB_vec(points:: PyArray{Float64,2},tris::PyArray{UInt64,2},edges::PyArray{UInt32,2},IORs::PyArray{Float64,1}, k2::Float64,Nedges::Int64)
+    return construct_AB_vec( pyconvert(Array{Float64,2},points), pyconvert(Array{Int64,2},tris), pyconvert(Array{Int64,2},edges),pyconvert(Vector{Float64},IORs),k2::Float64,Nedges::Int64)
+end
+
+function construct_AB_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::Array{Float64,1}, k2::Float64,Nedges::Int64)
+    Ntt = Nedges
+    Nzz = size(points,2)
+    N = Ntt + Nzz
+    Is_t = vec(repeat(edges,inner=[3,1]))
+    Js_t = vec(repeat(edges,outer=[3,1]))
+
+    Is_z = vec(repeat(tris,inner=[3,1]))
+    Js_z = vec(repeat(tris,outer=[3,1]))
+
+    Att = Array{Float64}(undef,size(Is_t,1))
+    Btt = Array{Float64}(undef,size(Is_t,1))
+    Btz = Array{Float64}(undef,size(Is_t,1))
+    Bzt = Array{Float64}(undef,size(Is_t,1))
+    Bzz = Array{Float64}(undef,size(Is_t,1))
+
+    for i in axes(tris,2)
+        n2 = IORs[i]
+        tri_idx = tris[:,i]
+        tripoints = points[:,tri_idx]
+        pc = precompute(tripoints,tri_idx)
+        NeNe = computeL_NeNe(pc)
+        NN = computeL_NN(pc)
+        dNdN = computeL_dNdN(pc)
+        NedN = computeL_Ne_dN(pc)
+        cdNcdN = computeL_curlNe_curlNe(pc)
+
+        Att[(i-1)*9+1:i*9] .= n2*k2 * vec(NeNe) .- vec(cdNcdN)
+        Btt[(i-1)*9+1:i*9] .= vec(NeNe)
+        Btz[(i-1)*9+1:i*9] .= vec(NedN')
+        Bzt[(i-1)*9+1:i*9] .= vec(NedN)
+        Bzz[(i-1)*9+1:i*9] .= vec(dNdN) .- n2*k2*vec(NN)
+    end
+
+    # order is tt tz zt zz
+    Is = [Is_t ; Is_t ; Is_z .+ Ntt ; Is_z .+ Ntt]
+    Js = [Js_t ; Js_z .+ Ntt ; Js_t ; Js_z .+ Ntt]
+
+    A = sparse(Is_t,Js_t,Att,N,N)
+    B = sparse(Is,Js,[Btt ; Btz ; Bzt ; Bzz],N,N)
+    return A,B
+end
+#endregion
+
+#region finite element evaluation stuff
 
 struct leaf
     bbox :: Array{Float64,1}
@@ -105,8 +179,9 @@ end
 
 struct tritree # just need a way to store the array of triangle points
     _idxtree :: idxtree
-    points :: Array{Float64,2}
+    points :: Array{Float64,2} # array of all points in mesh
     connections :: Array{Int64,2}
+    edges :: Array{Int64,2} # array of all edges, identified as a pair of indices for points
     tripoints :: Array{Float64,3}
 end
 
@@ -194,7 +269,7 @@ function construct_recursive(idxs::Array{Int64,1},bounds::Array{Float64,2},level
     end
 end
 
-function construct_tritree(points::PyArray{Float64,2},connections::PyArray{T,2} where T<:Integer,min_leaf_size=4)
+function construct_tritree(points::PyArray{Float64,2},connections::PyArray{T,2} where T<:Integer,edges::PyArray{T,2} where T<:Integer,min_leaf_size=4)
     points = pyconvert(Array{Float64,2},points)
     connections = pyconvert(Array{UInt64,2},connections)
 
@@ -213,7 +288,7 @@ function construct_tritree(points::PyArray{Float64,2},connections::PyArray{T,2} 
     bounds = hcat(xmins,xmaxs,ymins,ymaxs)
 
     idxs = Array(1:size(tripoints,1))
-    return tritree(construct_recursive(idxs,bounds,0,min_leaf_size),points,connections,tripoints)
+    return tritree(construct_recursive(idxs,bounds,0,min_leaf_size),points,connections,edges,tripoints)
 end 
 
 function inside(point::AbstractVector{Float64},bbox::AbstractVector{Float64})
@@ -278,8 +353,234 @@ function query(point::Union{AbstractVector{Float64},PyArray{Float64,1}},_tritree
     return query_recursive(point,_tritree.tripoints,_tritree._idxtree)
 end
 
-### interpolation stuff for QT elements ##
+### interpolation stuff ##
 
+function affine_transform_matrix(vertices::AbstractArray{Float64,2} )
+    x21 = vertices[2,1] - vertices[1,1]
+    y21 = vertices[2,2] - vertices[1,2]
+    x31 = vertices[3,1] - vertices[1,1]
+    y31 = vertices[3,2] - vertices[1,2]
+    _J = x21*y31-x31*y21
+    M = [y31 -x31 ; -y21 x21] ./ _J
+    return M
+end
+
+function affine_transform_matrixT_in_place(vertices::Union{Matrix{Float64},SubArray{Float64,2}},M::Matrix{Float64} )
+    x21 = vertices[2,1] - vertices[1,1]
+    y21 = vertices[2,2] - vertices[1,2]
+    x31 = vertices[3,1] - vertices[1,1]
+    y31 = vertices[3,2] - vertices[1,2]
+    _J = x21*y31-x31*y21
+    M[1,1] = y31/_J
+    M[2,1] = -x31/_J
+    M[1,2] = -y21/_J
+    M[2,2] = x21/_J
+    return M
+end
+
+function affine_transform_matrix_inv(vertices::Array{Float64,2})
+    x21 = vertices[2,1] - vertices[1,1]
+    y21 = vertices[2,2] - vertices[1,2]
+    x31 = vertices[3,1] - vertices[1,1]
+    y31 = vertices[3,2] - vertices[1,2]
+    return [x21 x31 ; y21 y31]
+end
+
+function apply_affine_transform(vertices::AbstractArray{Float64,2},xy::AbstractVector{Float64})
+    M = affine_transform_matrix(vertices)
+    return M * (xy .- vertices[1,:])
+end
+
+function jac(vertices::Array{Float64,2})
+    x21 = vertices[2,1] - vertices[1,1]
+    y21 = vertices[2,2] - vertices[1,2]
+    x31 = vertices[3,1] - vertices[1,1]
+    y31 = vertices[3,2] - vertices[1,2]
+    return x21*y31-x31*y21
+end
+
+function get_interp_weights(new_points::PyArray{Float64,2},_tritree::tritree)
+    _old_points = _tritree.tripoints
+    _new_points = pyconvert(Array{Float64,2},new_points)
+    N = size(_new_points,1)
+    _weights = Array{Float64}(undef,N,6)
+    _triidxs = Array{Int64}(undef,N)
+
+    for i in 1:N
+        new_point = _new_points[i,1:2]
+        _triidx = query(new_point,_tritree)
+        if _triidx != 0
+            _triidxs[i] = _triidx
+            triverts = _old_points[_triidx,:,:]
+            u,v = apply_affine_transform(triverts,new_point)
+
+            _weights[i,1] = N1(u,v)
+            _weights[i,2] = N2(u)
+            _weights[i,3] = N3(v)
+            _weights[i,4] = N4(u,v)
+            _weights[i,5] = N5(u,v)
+            _weights[i,6] = N6(u,v)
+        else
+            _weights[i,:] .= 0.
+            _triidxs[i] = 0
+        end
+    end
+    return (_triidxs,_weights)
+end
+
+function evaluate_vec(point::Union{AbstractVector{Float64},PyArray{Float64,1}},field::Union{PyArray{T,1},Vector{T}},_tritree::tritree) :: Vector{T} where T<:Union{Float64,ComplexF64}
+    """pointwise evaulation of a vectorial field"""
+    dtype = eltype(field)
+    if typeof(point) <: PyArray
+        point = pyconvert(Vector{Float64},point)
+    end
+    if typeof(field) <: PyArray
+        field = pyconvert(Vector{dtype},field)
+    end
+    _triidx = query(point,_tritree)
+    _triidxs = _tritree.connections[_triidx,:]
+    _edgeidxs = _tritree.edges[_triidx,:]
+    val = [0. , 0.]
+    if _triidx != 0
+        triverts = _tritree.tripoints[_triidx,:,:]
+        val .+= LNe0(point, triverts, _triidxs) * field[_edgeidxs[1]]
+        val .+= LNe1(point, triverts, _triidxs) * field[_edgeidxs[2]]
+        val .+= LNe2(point, triverts, _triidxs) * field[_edgeidxs[3]]
+    end
+    return val
+end
+
+function evaluate(point::Union{AbstractVector{Float64},PyArray{Float64,1}},field::Union{PyArray{T,1},Vector{T}},_tritree::tritree ; order::Int64 = 2) :: T where T<:Union{Float64,ComplexF64}
+    """pointwise evaulation of a scalar field"""
+    dtype = eltype(field)
+    if typeof(point) <: PyArray
+        point = pyconvert(Vector{Float64},point)
+    end
+    if typeof(field) <: PyArray
+        field = pyconvert(Vector{dtype},field)
+    end
+    _triidx = query(point,_tritree)
+    val = 0.
+    if _triidx != 0
+        @views triverts = _tritree.tripoints[_triidx,:,:]
+        u,v = apply_affine_transform(triverts,point)
+        if order==2
+            val += N1(u,v) * field[_tritree.connections[_triidx,1]]
+            val += N2(u) * field[_tritree.connections[_triidx,2]]
+            val += N3(v) * field[_tritree.connections[_triidx,3]]
+            val += N4(u,v) * field[_tritree.connections[_triidx,4]]
+            val += N5(u,v) * field[_tritree.connections[_triidx,5]]
+            val += N6(u,v) * field[_tritree.connections[_triidx,6]]
+        elseif order==1
+            val += LN1(u,v) * field[_tritree.connections[_triidx,1]]
+            val += LN2(u,v) * field[_tritree.connections[_triidx,2]]
+            val += LN3(u,v) * field[_tritree.connections[_triidx,3]]
+        end
+    end
+    return val
+end
+
+function evaluate(point::Union{PyArray{Float64,2},Matrix{Float64}},field::Union{PyArray{T,1},Vector{T}},_tritree::tritree ; order::Int64 = 2) :: Vector{T} where T<:Union{Float64,ComplexF64}
+    """linewise evaluation of a scalar field"""
+    dtype = eltype(field)
+    if typeof(point) <: PyArray
+        point = pyconvert(Matrix{Float64},point)
+    end
+    if typeof(field) <: PyArray
+        field = pyconvert(Vector{dtype},field)
+    end
+    out = Vector{dtype}(undef,size(point,1))
+
+    for i in axes(point,1)
+        @views _point = point[i,:]
+        out[i] = evaluate(_point,field,_tritree,order=order)
+    end
+    return out
+end
+
+function evaluate_vec(point::Union{PyArray{Float64,2},Matrix{Float64}},field::Union{PyArray{T,1},Vector{T}},_tritree::tritree) :: Array{T,2} where T<:Union{Float64,ComplexF64}
+    """linewise evaluation of a vector field"""
+    dtype = eltype(field)
+    if typeof(point) <: PyArray
+        point = pyconvert(Matrix{Float64},point)
+    end
+    if typeof(field) <: PyArray
+        field = pyconvert(Vector{dtype},field)
+    end
+    out = Array{dtype}(undef,size(point,1),2)
+
+    for i in axes(point,1)
+        @views _point = point[i,:] # technically further in memory i think
+        out[i,:] .= evaluate_vec(_point,field,_tritree)
+    end
+    return out
+end
+
+function evaluate(pointsx::PyArray{Float64,1},pointsy::PyArray{Float64,1},field::PyArray{T,1} where T<:Union{Float64,ComplexF64},_tritree::tritree ; order::Int64 = 2)
+    """gridwise evaluation of a scalar field"""
+    dtype = eltype(field)
+    pointsx = pyconvert(Vector{Float64},pointsx)
+    pointsy = pyconvert(Vector{Float64},pointsy)
+    field = pyconvert(Vector{dtype},field)
+    out = Array{dtype,2}(undef,size(pointsx,1),size(pointsy,1))
+
+    for i in eachindex(pointsx)
+        for j in eachindex(pointsy)
+            point = [pointsx[i],pointsy[j]]
+            out[i,j] = evaluate(point,field,_tritree,order=order)
+        end
+    end
+    return out
+end
+
+function evaluate_vec(pointsx::PyArray{Float64,1},pointsy::PyArray{Float64,1},field::PyArray{T,1} where T<:Union{Float64,ComplexF64},_tritree::tritree)
+    """gridwise evaluation of a vector field"""
+    dtype = eltype(field)
+    pointsx = pyconvert(Vector{Float64},pointsx)
+    pointsy = pyconvert(Vector{Float64},pointsy)
+    field = pyconvert(Vector{dtype},field)
+    out = Array{dtype,3}(undef,size(pointsx,1),size(pointsy,1),2)
+
+    for i in eachindex(pointsx)
+        for j in eachindex(pointsy)
+            point = [pointsx[i],pointsy[j]]
+            out[i,j,:] .= evaluate_vec(point,field,_tritree)
+        end
+    end
+    return out
+end
+
+function evaluate_func(field::PyArray{T,1} where T<:Union{Float64,ComplexF64},_tritree::tritree)
+    """ convert a FE field into a function of point [x,y] """
+    dtype = eltype(field)
+    field = pyconvert(Vector{dtype},field)
+
+    function _inner_(point::Union{AbstractVector{Float64},PyArray{Float64,1}})
+        if typeof(point) <: PyArray
+            point = pyconvert(Vector{Float64},point)
+        end
+        return evaluate(point,field,_tritree)
+    end
+    return _inner_
+end
+
+function evaluate(f::Function,xa::PyArray{Float64,1},ya::PyArray{Float64,1})
+    xa = pyconvert(Vector{Float64},xa)
+    ya = pyconvert(Vector{Float64},ya)
+    out = Array{Float64}(undef,size(xa,1),size(ya,1))
+    for i in eachindex(xa)
+        for j in eachindex(ya)
+            x = xa[i]
+            y = ya[j]
+            out[i,j] = f([x,y])
+        end
+    end
+    return out
+end
+
+#endregion
+
+#region shapefuncs - scalar
 function N1(u,v)
     2 * (1 - u - v) * (0.5 - u - v)
 end
@@ -334,149 +635,141 @@ end
 function dvN6(u,v)
     -4*u - 8*v + 4
 end
+#endregion
 
-function affine_transform_matrix(vertices::AbstractArray{Float64,2} )
-    x21 = vertices[2,1] - vertices[1,1]
-    y21 = vertices[2,2] - vertices[1,2]
-    x31 = vertices[3,1] - vertices[1,1]
-    y31 = vertices[3,2] - vertices[1,2]
-    _J = x21*y31-x31*y21
-    M = [y31 -x31 ; -y21 x21] ./ _J
-    return M
+#region shapefuncs-scalar linear
+function LN1(u,v)
+    1 - u - v
+end
+function LN2(u,v)
+    u
+end
+function LN3(u,v)
+    v
 end
 
-function affine_transform_matrix_inv(vertices::Array{Float64,2})
-    x21 = vertices[2,1] - vertices[1,1]
-    y21 = vertices[2,2] - vertices[1,2]
-    x31 = vertices[3,1] - vertices[1,1]
-    y31 = vertices[3,2] - vertices[1,2]
-    return [x21 x31 ; y21 y31]
+#region shapefuncs-vector
+
+function precompute(tri::Array{Float64,2},tri_idx::Vector{Int}) :: NTuple{10,Float64}
+    # compute a bunch of stuff for shapefuncs
+    x21 = tri[1,2] - tri[1,1]
+    y21 = tri[2,2] - tri[2,1]
+    x31 = tri[1,3] - tri[1,1]
+    y31 = tri[2,3] - tri[2,1]
+    x32 = tri[1,3] - tri[1,2]
+    y32 = tri[2,3] - tri[2,2]
+
+    s1 = (tri_idx[1]<tri_idx[2] ? 1 : -1)
+    s2 = (tri_idx[2]<tri_idx[3] ? 1 : -1)
+    s3 = (tri_idx[3]<tri_idx[1] ? 1 : -1)
+
+    l12 = sqrt(x21*x21+y21*y21)*s1 
+    l23 = sqrt(x32*x32+y32*y32)*s2
+    l31 = sqrt(x31*x31+y31*y31)*s3
+    _J = x21*y31 - x31*y21
+
+    return (x21,y21,x31,y31,x31,y31,l12,l23,l31,_J)
 end
 
-function apply_affine_transform(vertices::AbstractArray{Float64,2},xy::AbstractVector{Float64})
-    M = affine_transform_matrix(vertices)
-    return M * (xy .- vertices[1,:])
+function precompute_row_ordered(tri::Union{Array{Float64,2},PyArray{Float64,2}},tri_idx::Union{Vector{Int},PyArray{UInt64,1}}) :: NTuple{10,Float64}
+    x21 = tri[2,1] - tri[1,1]
+    y21 = tri[2,2] - tri[1,2]
+    x31 = tri[3,1] - tri[1,1]
+    y31 = tri[3,2] - tri[1,2]
+    x32 = tri[3,1] - tri[2,1]
+    y32 = tri[3,2] - tri[2,2]
+
+    s1 = (tri_idx[1]<tri_idx[2] ? 1 : -1)
+    s2 = (tri_idx[2]<tri_idx[3] ? 1 : -1)
+    s3 = (tri_idx[3]<tri_idx[1] ? 1 : -1)
+
+    l12 = sqrt(x21*x21+y21*y21)*s1 
+    l23 = sqrt(x32*x32+y32*y32)*s2
+    l31 = sqrt(x31*x31+y31*y31)*s3
+    _J = x21*y31 - x31*y21
+
+    return (x21,y21,x31,y31,x31,y31,l12,l23,l31,_J)
 end
 
-function jac(vertices::Array{Float64,2})
-    x21 = vertices[2,1] - vertices[1,1]
-    y21 = vertices[2,2] - vertices[1,2]
-    x31 = vertices[3,1] - vertices[1,1]
-    y31 = vertices[3,2] - vertices[1,2]
-    return x21*y31-x31*y21
+function LNe0(p,tri,tri_idx)
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precompute_row_ordered(tri,tri_idx)
+    x1,y1 = tri[1,1],tri[1,2]
+    x,y = p[1],p[2]
+    xv = (-y + y31 + y1)/_J*l12
+    yv = (x - x31 - x1)/_J*l12
+    return [xv , yv]
 end
 
-function get_interp_weights(new_points::PyArray{Float64,2},_tritree::tritree)
-    _old_points = _tritree.tripoints
-    _new_points = pyconvert(Array{Float64,2},new_points)
-    N = size(_new_points,1)
-    _weights = Array{Float64}(undef,N,6)
-    _triidxs = Array{Int64}(undef,N)
-
-    for i in 1:N
-        new_point = _new_points[i,1:2]
-        _triidx = query(new_point,_tritree)
-        if _triidx != 0
-            _triidxs[i] = _triidx
-            triverts = _old_points[_triidx,:,:]
-            u,v = apply_affine_transform(triverts,new_point)
-
-            _weights[i,1] = N1(u,v)
-            _weights[i,2] = N2(u)
-            _weights[i,3] = N3(v)
-            _weights[i,4] = N4(u,v)
-            _weights[i,5] = N5(u,v)
-            _weights[i,6] = N6(u,v)
-        else
-            _weights[i,:] .= 0.
-            _triidxs[i] = 0
-        end
-    end
-    return (_triidxs,_weights)
+function LNe1(p,tri,tri_idx)
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precompute_row_ordered(tri,tri_idx)
+    x1,y1 = tri[1,1],tri[1,2]
+    x,y = p[1],p[2]
+    xv = (-y + y1)/_J*l23
+    yv = (x - x1)/_J*l23
+    return [xv , yv]
 end
 
-function evaluate(point::Union{AbstractVector{Float64},PyArray{Float64,1}},field::Union{PyArray{T,1},Vector{T}},_tritree::tritree) :: T where T<:Union{Float64,ComplexF64}
-    dtype = eltype(field)
-    if typeof(point) <: PyArray
-        point = pyconvert(Vector{Float64},point)
-    end
-    if typeof(field) <: PyArray
-        field = pyconvert(Vector{dtype},field)
-    end
-    _triidx = query(point,_tritree)
-    val = 0.
-    if _triidx != 0
-        @views triverts = _tritree.tripoints[_triidx,:,:]
-        u,v = apply_affine_transform(triverts,point)
-        val += N1(u,v) * field[_tritree.connections[_triidx,1]]
-        val += N2(u) * field[_tritree.connections[_triidx,2]]
-        val += N3(v) * field[_tritree.connections[_triidx,3]]
-        val += N4(u,v) * field[_tritree.connections[_triidx,4]]
-        val += N5(u,v) * field[_tritree.connections[_triidx,5]]
-        val += N6(u,v) * field[_tritree.connections[_triidx,6]]
-    end
-    return val
+function LNe2(p,tri,tri_idx)
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precompute_row_ordered(tri,tri_idx)
+    x1,y1 = tri[1,1],tri[1,2]
+    x,y = p[1],p[2]
+    xv = (-y + y21 + y1)/_J*l31
+    yv = (x - x21 - x1)/_J*l31
+    return [xv , yv]
 end
 
-function evaluate(point::Union{PyMatrix{Float64},Matrix{Float64}},field::Union{PyArray{T,1},Vector{T}},_tritree::tritree) :: Vector{T} where T<:Union{Float64,ComplexF64}
-    dtype = eltype(field)
-    if typeof(point) <: PyArray
-        point = pyconvert(Matrix{Float64},point)
-    end
-    if typeof(field) <: PyArray
-        field = pyconvert(Vector{dtype},field)
-    end
-    out = Vector{dtype}(undef,size(point,1))
-
-    for i in axes(point,1)
-        @views _point = point[i,:]
-        out[i] = evaluate(_point,field,_tritree)
-    end
+function computeL_NeNe(precomp::NTuple{10,Float64})
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precomp
+    out = zeros(Float64,3,3)
+    out[1,1] = l12^2 * (l12^2-3*x21*x31+3*l31^2-3*y21*y31)/(12*_J)
+    out[2,2] = l23^2 * (l12^2 + x21*x31 + l31^2 + y21*y31)/(12*_J)
+    out[3,3] = l31^2 * (3*l12^2-3*x21*x31+l31^2-3*y21*y31)/(12*_J)
+    out[1,2] = out[2,1] = l12*l23 * (l12^2-x21*x31-l31^2-y21*y31)/(12*_J)
+    out[2,3] = out[3,2] = l23*l31 * (-l12^2-x21*x31+l31^2-y21*y31)/(12*_J)
+    out[3,1] = out[1,3] = l31*l12 * (-l12^2+3*x21*x31-l31^2+3*y21*y31)/(12*_J)
     return out
 end
 
-function evaluate(pointsx::PyArray{Float64,1},pointsy::PyArray{Float64,1},field::PyArray{T,1} where T<:Union{Float64,ComplexF64},_tritree::tritree)
-    dtype = eltype(field)
-    pointsx = pyconvert(Vector{Float64},pointsx)
-    pointsy = pyconvert(Vector{Float64},pointsy)
-    field = pyconvert(Vector{dtype},field)
-    out = Array{dtype,2}(undef,size(pointsx,1),size(pointsy,1))
+function computeL_curlNe_curlNe(precomp::NTuple{10,Float64})
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precomp
+    ls = [l12 , l23 , l31]
+    return 2/_J * ls * ls'
+end
 
-    for i in eachindex(pointsx)
-        for j in eachindex(pointsy)
-            point = [pointsx[i],pointsy[j]]
-            out[i,j] = evaluate(point,field,_tritree)
-        end
-    end
+function computeL_Ne_dN(precomp::NTuple{10,Float64})
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precomp
+    out = zeros(Float64,3,3)
+    out[1,1] = l12*(-l12^2 + 3*x21*x31-2*l31^2+3*y21*y31)/(6*_J)
+    out[2,2] = l23*(-x21*x31-l31^2-y21*y31)/(6*_J)
+    out[3,3] = l31*(-2*l12^2+x21*x31+y21*y31)/(6*_J)
+    out[1,2] = l12*(-x21*x31+2*l31^2-y21*y31)/(6*_J)
+    out[2,1] = l23*(-l12^2+l31^2)/(6*_J)
+    out[2,3] = l23*(l12^2+x21*x31+y21*y31)/(6*_J)
+    out[3,2] = l31*(2*x21*x31+2*y21*y31-l31^2)/(6*_J)
+    out[3,1] = l31*(2*l12^2-3*x21*x31+l31^2-3*y21*y31)/(6*_J)
+    out[1,3] = l12*(l12^2-2*x21*x31-2*y21*y31)/(6*_J)
     return out
 end
 
-function evaluate_func(field::PyArray{T,1} where T<:Union{Float64,ComplexF64},_tritree::tritree)
-    """ convert a FE field into a function of point [x,y] """
-    dtype = eltype(field)
-    field = pyconvert(Vector{dtype},field)
-
-    function _inner_(point::Union{AbstractVector{Float64},PyArray{Float64,1}})
-        if typeof(point) <: PyArray
-            point = pyconvert(Vector{Float64},point)
-        end
-        return evaluate(point,field,_tritree)
-    end
-    return _inner_
-end
-
-function evaluate(f::Function,xa::PyArray{Float64,1},ya::PyArray{Float64,1})
-    xa = pyconvert(Vector{Float64},xa)
-    ya = pyconvert(Vector{Float64},ya)
-    out = Array{Float64}(undef,size(xa,1),size(ya,1))
-    for i in eachindex(xa)
-        for j in eachindex(ya)
-            x = xa[i]
-            y = ya[j]
-            out[i,j] = f([x,y])
-        end
-    end
+function computeL_NN(precomp::NTuple{10,Float64})
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precomp
+    out = fill(_J/24,3,3)
+    out[1,1] = out[2,2] = out[3,3] = _J/12
     return out
 end
 
+function computeL_dNdN(precomp::NTuple{10,Float64})
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precomp
+    out = zeros(Float64,3,3)
+    out[1,1] = (l12^2+l31^2-2*x21*x31-2*y21*y31)/(2*_J)
+    out[2,2] = l31^2/(2*_J)
+    out[3,3] = l12^2/(2*_J)
+    out[1,2] = out[2,1] = (-l31^2+x21*x31+y21*y31)/(2*_J)
+    out[2,3] = out[3,2] = (-x21*x31-y21*y31)/(2*_J)
+    out[3,1] = out[1,3] = (-l12^2+x21*x31+y21*y31)/(2*_J)
+    return out
 end
+
+#endregion
+
+end # module FEsolver

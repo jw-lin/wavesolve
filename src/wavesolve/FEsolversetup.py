@@ -7,4 +7,6 @@ def FEsolversetup():
     jlPkg.add("PythonCall")
     jlPkg.add("SparseArrays")
     jlPkg.add("Arpack")
+    jlPkg.add("Pardiso")
     jlPkg.precompile()
+
