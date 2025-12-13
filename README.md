@@ -4,6 +4,8 @@ It uses the finite element method, and generates waveguide meshes through the `p
 
 This particular branch (work in progress) moves some calculations into Julia, and as such requires a Julia install.
 
+Currently, it solves the circular fiber waveguide example from <a href="getting-started.ipynb">`getting-started.ipynb`</a> around 40% faster than base wavesolve.
+
 ## installation
 
 Python dependencies: `numpy`,`scipy`,`matplotlib`,`numexpr`,`pygmsh`,`jupyter`, `juliacall`, `pypardiso` (optional, only useful for vector solving)
