@@ -1,0 +1,2 @@
+include src/wavesolve/FEsolver/Project.toml
+recursive-include src/wavesolve/FEsolver *

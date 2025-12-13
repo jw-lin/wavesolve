@@ -1,0 +1,6 @@
+name = "FEsolver"
+uuid = "9067bf4a-e9bf-4ff4-bd2d-9595ca2c14b2"
+version = "0.0.1"
+authors = ["Jonathan Lin <90280749+jw-lin@users.noreply.github.com>"]
+
+[deps]
