@@ -6,6 +6,8 @@ using SparseArrays
 using Arpack
 using Pardiso
 
+#region solvers
+
 function solve_scalar(A::SparseMatrixCSC,B::SparseMatrixCSC,est_eigval::Float64,Nmax::Int64)
     w,v = eigs(A, B, which=:LM,nev=Nmax,sigma=est_eigval,explicittransform=:none)
     return w,v
@@ -25,57 +27,35 @@ function solve_vector(A::SparseMatrixCSC,B::SparseMatrixCSC,est_eigval::Float64,
     end
     return w,v
 end
-#region scalar
 
-function compute_NN_dNdN(t::PyArray{Float64,2})
-    return compute_NN_dNdN(pyconvert(Array{Float64,2},t))
+function solve_waveguide(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::PyArray{Float64,1}, k2::Float64,est_eigval::Float64,Nmax::Int64; order::Int=2)
+    if order == 2
+        A,B = construct_AB_order2(points,tris,pyconvert(Vector{Float64},IORs),k2)
+    elseif order == 1
+        A,B = construct_AB_order1(points,tris,pyconvert(Vector{Float64},IORs),k2)
+    end
+    w,v = solve_scalar(A,B,est_eigval,Nmax)
 end
 
-function compute_NN_dNdN(t::Array{Float64,2}) :: Tuple{Vector{Float64},Vector{Float64}}
-    NN = zeros(Float64,6,6)
-    dNdN = zeros(Float64,6,6)
-
-    x21 = t[1,2] - t[1,1]
-    y21 = t[2,2] - t[2,1]
-    x31 = t[1,3] - t[1,1]
-    y31 = t[2,3] - t[2,1]
-    x32 = t[1,3] - t[1,2]
-    y32 = t[2,3] - t[2,2]
-    _J = x21*y31 - x31*y21
-
-    NN[1,1] = NN[2,2] = NN[3,3] = _J/60
-    NN[4,4] = NN[5,5] = NN[6,6] = 4*_J/45
-    NN[2,1] = NN[1,2] = NN[2,3] = NN[3,2] = NN[3,1] = NN[1,3] = -_J/360
-    NN[1,5] = NN[5,1] = NN[2,6] = NN[6,2] = NN[3,4] = NN[4,3] = -_J/90
-    NN[4,5] = NN[5,4] = NN[4,6] = NN[6,4] = NN[5,6] = NN[6,5] = 2*_J/45
-
-    dNdN[1,1] = (y32*y32 + x32*x32)/(2*_J)
-    dNdN[2,2] = (y31*y31 + x31*x31)/(2*_J)
-    dNdN[3,3] = (y21*y21 + x21*x21)/(2*_J)
-    dNdN[4,4] = 4/(3*_J) * (y32^2+y31*y21+x32^2+x31*x21)
-    dNdN[5,5] = 4/(3*_J) * (y31^2-y21*y32+x31^2-x21*x32)
-    dNdN[6,6] = 4/(3*_J) * (y21^2+y32*y31+x21^2+x32*x31)
-    dNdN[1,2] = dNdN[2,1] = (y32*y31+x32*x31)/(6*_J)
-    dNdN[2,3] = dNdN[3,2] = (y31*y21+x31*x21)/(6*_J)
-    dNdN[3,1] = dNdN[1,3] = (-y21*y32-x21*x32)/(6*_J)
-    dNdN[1,4] = dNdN[4,1] = dNdN[2,4] = dNdN[4,2]  = -2*(y32*y31+x32*x31)/(3*_J)
-    dNdN[1,6] = dNdN[6,1] = dNdN[3,6] = dNdN[6,3] = 2*(y21*y32+x21*x32)/(3*_J)
-    dNdN[3,5] = dNdN[5,3] = dNdN[2,5] = dNdN[5,2] = -2*(y31*y21+x31*x21)/(3*_J)
-    dNdN[4,5] = dNdN[5,4] =  4/(3*_J)*(y21*y32+x21*x32)
-    dNdN[5,6] = dNdN[6,5] = -4/(3*_J)*(y31*y32+x31*x32)
-    dNdN[6,4] = dNdN[4,6] = -4/(3*_J)*(y31*y21+x31*x21)
-    return vec(NN),vec(dNdN)
+function solve_waveguide_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::PyArray{Float64,1}, k2::Float64,Nedges::Int64, est_eigval::Float64,Nmax::Int64,solve_mode::String = "transform")
+    A,B = construct_AB_vec(points,tris,edges,pyconvert(Vector{Float64},IORs),k2,Nedges)
+    w,v = solve_vector(A,B,est_eigval,Nmax,solve_mode)
+    return w,v
 end
 
-function construct_AB_order2_sparse(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) :: Tuple{SparseMatrixCSC{Float64, Int64}, SparseMatrixCSC{Float64, Int64}}
+#endregion
+
+#region matrices, scalar
+
+function construct_AB_order2(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) :: Tuple{SparseMatrixCSC{Float64, Int64}, SparseMatrixCSC{Float64, Int64}}
     N = size(points,2)
-    Is,Js,Avals,Bvals = compute_AB_vals(points,tris,IORs,k2)
+    Is,Js,Avals,Bvals = compute_AB_vals_order2(points,tris,IORs,k2)
     A = sparse(Is,Js,Avals,N,N)
     B = sparse(Is,Js,Bvals,N,N)
     return A,B
 end
 
-function compute_AB_vals(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) :: Tuple{Vector{Int64},Vector{Int64},Vector{Float64},Vector{Float64}}
+function compute_AB_vals_order2(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) :: Tuple{Vector{Int64},Vector{Int64},Vector{Float64},Vector{Float64}}
     Is = vec(repeat(tris,inner=[6,1]))
     Js = vec(repeat(tris,outer=[6,1]))
 
@@ -92,33 +72,28 @@ function compute_AB_vals(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::A
     return Is,Js,Avals,Bvals
 end
 
-function compute_AB_vals(points::PyArray{Float64,2},tris::PyArray{UInt64,2}, IORs::PyArray{Float64,1}, k2::Float64)
-    return compute_AB_vals(pyconvert(Matrix{Float64},points),pyconvert(Matrix{Int64},tris),pyconvert(Vector{Float64},IORs),k2)
-end
-
-function construct_AB_order2_sparse(points:: PyArray{Float64,2},tris::PyArray{UInt64,2}, IORs::PyArray{Float64,1}, k2::Float64)
-    return construct_AB_order2_sparse(pyconvert(Array{Float64,2},points),pyconvert(Array{Int64,2},tris),pyconvert(Array{Float64,1},IORs),k2)
-end
-
-function solve_waveguide(points:: PyArray{Float64,2},tris::PyArray{UInt64,2}, IORs::PyArray{Float64,1}, k2::Float64,est_eigval::Float64,Nmax::Int64)
-    A,B = construct_AB_order2_sparse(points,tris,IORs,k2)
-    w,v = solve_scalar(A,B,est_eigval,Nmax)
-    return w,v
+function construct_AB_order1(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) :: Tuple{SparseMatrixCSC{Float64, Int64}, SparseMatrixCSC{Float64, Int64}}
+    N = size(points,2)
+    Is = vec(repeat(tris,inner=[3,1]))
+    Js = vec(repeat(tris,outer=[3,1]))
+    Avals = Array{Float64}(undef,size(Is,1))
+    Bvals = Array{Float64}(undef,size(Is,1))
+    for i in axes(tris,2)
+        n2 = IORs[i]
+        tri_idx = tris[:,i]
+        tripoints = points[:,tri_idx]
+        NN,dNdN = computeL_NN_dNdN(tripoints,tri_idx)
+        Avals[(i-1)*9+1:i*9] .= (NN*k2*n2 .- dNdN)
+        Bvals[(i-1)*9+1:i*9] .= NN
+    end
+    A = sparse(Is,Js,Avals,N,N)
+    B = sparse(Is,Js,Bvals,N,N)
+    return A,B
 end
 
 #endregion
 
-#region vector
-
-function solve_waveguide_vec(points:: PyArray{Float64,2},tris::PyArray{UInt64,2},edges::PyArray{UInt32,2},IORs::PyArray{Float64,1}, k2::Float64,Nedges::Int64, est_eigval::Float64,Nmax::Int64,solve_mode::String = "transform")
-    A,B = construct_AB_vec(points,tris,edges,IORs,k2,Nedges)
-    w,v = solve_vector(A,B,est_eigval,Nmax,solve_mode)
-    return w,v
-end
-
-function construct_AB_vec(points:: PyArray{Float64,2},tris::PyArray{UInt64,2},edges::PyArray{UInt32,2},IORs::PyArray{Float64,1}, k2::Float64,Nedges::Int64)
-    return construct_AB_vec( pyconvert(Array{Float64,2},points), pyconvert(Array{Int64,2},tris), pyconvert(Array{Int64,2},edges),pyconvert(Vector{Float64},IORs),k2::Float64,Nedges::Int64)
-end
+#region matrices, vector
 
 function construct_AB_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::Array{Float64,1}, k2::Float64,Nedges::Int64)
     Ntt = Nedges
@@ -179,10 +154,10 @@ end
 
 struct tritree # just need a way to store the array of triangle points
     _idxtree :: idxtree
-    points :: Array{Float64,2} # array of all points in mesh
-    connections :: Array{Int64,2}
+    points :: Array{Float64,2} # array of all points in mesh. column major (each column is a point)
+    tris :: Array{Int64,2} # array of all triangles in mesh, identified as a triple of indices for points.
     edges :: Array{Int64,2} # array of all edges, identified as a pair of indices for points
-    tripoints :: Array{Float64,3}
+    tripoints :: Array{Float64,3} # array of points corresponding to each triangle, to avoid constant lookups
 end
 
 function isleaf(a::Union{leaf,idxtree})
@@ -231,7 +206,7 @@ function computeBB(xmins,xmaxs,ymins,ymaxs)
 end
 
 function computeBB(bounds::Matrix{Float64})::Vector{Float64}
-    return [minimum(bounds[:,1]),maximum(bounds[:,2]),minimum(bounds[:,3]),maximum(bounds[:,4])]
+    return [minimum(bounds[1,:]),maximum(bounds[2,:]),minimum(bounds[3,:]),maximum(bounds[4,:])]
 end
 
 function construct_recursive(idxs::Array{Int64,1},bounds::Array{Float64,2},level::Int64,min_leaf_size::Int64)
@@ -240,9 +215,9 @@ function construct_recursive(idxs::Array{Int64,1},bounds::Array{Float64,2},level
         return leaf(BB,idxs)
     else
         ax = level%2+1
-        sort_idx = sortperm(bounds[:,(ax-1)*2+1])
-        cmins = bounds[sort_idx,2*ax-1]
-        cmaxs = bounds[sort_idx,2*ax]
+        sort_idx = sortperm(bounds[(ax-1)*2+1,:])
+        cmins = bounds[2*ax-1,sort_idx]
+        cmaxs = bounds[2*ax,sort_idx]
 
         split_idx = minimize_SAH(cmins,cmaxs)
         if isnothing(split_idx)
@@ -253,14 +228,14 @@ function construct_recursive(idxs::Array{Int64,1},bounds::Array{Float64,2},level
         right_idxs = sort_idx[split_idx+1:end]
 
         if !isempty(left_idxs)                
-            left_bounds = bounds[left_idxs,:]
+            left_bounds = bounds[:,left_idxs]
             left_tree = construct_recursive(idxs[left_idxs],left_bounds,level+1,min_leaf_size)
         else
             left_tree = nothing
         end
 
         if !isempty(right_idxs)
-            right_bounds = bounds[right_idxs,:]
+            right_bounds = bounds[:,right_idxs]
             right_tree = construct_recursive(idxs[right_idxs],right_bounds,level+1,min_leaf_size)
         else
             right_tree = nothing
@@ -269,26 +244,24 @@ function construct_recursive(idxs::Array{Int64,1},bounds::Array{Float64,2},level
     end
 end
 
-function construct_tritree(points::PyArray{Float64,2},connections::PyArray{T,2} where T<:Integer,edges::PyArray{T,2} where T<:Integer,min_leaf_size=4)
+function construct_tritree(points::PyArray{Float64,2},tris::PyArray{T,2} where T<:Integer,edges::PyArray{T,2} where T<:Integer,min_leaf_size=4)
     points = pyconvert(Array{Float64,2},points)
-    connections = pyconvert(Array{UInt64,2},connections)
-
-    tripoints = Array{Float64,3}(undef,size(connections,1),size(connections,2),2)
-    for i in axes(connections,1)
-        for j in axes(connections,2)
-            tripoints[i,j,1] = points[connections[i,j],1]
-            tripoints[i,j,2] = points[connections[i,j],2]
+    tris = pyconvert(Array{Int64,2},tris)
+    tripoints = Array{Float64,3}(undef,2,size(tris,1),size(tris,2))
+    for j in axes(tris,2)
+        for i in axes(tris,1)
+            tripoints[1,i,j] = points[1,tris[i,j]]
+            tripoints[2,i,j] = points[2,tris[i,j]]
         end
     end
 
-    xmins = minimum(tripoints[:,:,1],dims=2)
-    xmaxs = maximum(tripoints[:,:,1],dims=2)
-    ymins = minimum(tripoints[:,:,2],dims=2)
-    ymaxs = maximum(tripoints[:,:,2],dims=2)
-    bounds = hcat(xmins,xmaxs,ymins,ymaxs)
-
-    idxs = Array(1:size(tripoints,1))
-    return tritree(construct_recursive(idxs,bounds,0,min_leaf_size),points,connections,edges,tripoints)
+    xmins = minimum(tripoints[1,:,:],dims=1)
+    xmaxs = maximum(tripoints[1,:,:],dims=1)
+    ymins = minimum(tripoints[2,:,:],dims=1)
+    ymaxs = maximum(tripoints[2,:,:],dims=1)
+    bounds = vcat(xmins,xmaxs,ymins,ymaxs)
+    idxs = Array(1:size(tripoints,3))
+    return tritree(construct_recursive(idxs,bounds,0,min_leaf_size),points,tris,edges,tripoints)
 end 
 
 function inside(point::AbstractVector{Float64},bbox::AbstractVector{Float64})
@@ -301,15 +274,15 @@ end
 
 function inside(point::AbstractVector{Float64},tri::Array{Float64,2},_eps=1e-12)::Bool
     x,y = point
-    dot1 = (tri[2,2]-tri[1,2])*(x-tri[1,1]) + (tri[1,1]-tri[2,1])*(y-tri[1,2])
+    dot1 = (tri[2,2]-tri[2,1])*(x-tri[1,1]) + (tri[1,1]-tri[1,2])*(y-tri[2,1])
     if dot1 > _eps
         return false
     end
-    dot2 = (tri[3,2]-tri[2,2])*(x-tri[2,1]) + (tri[2,1]-tri[3,1])*(y-tri[2,2])
+    dot2 = (tri[2,3]-tri[2,2])*(x-tri[1,2]) + (tri[1,2]-tri[1,3])*(y-tri[2,2])
     if dot2 > _eps
         return false
     end
-    dot3 = (tri[1,2]-tri[3,2])*(x-tri[3,1]) + (tri[3,1]-tri[1,1])*(y-tri[3,2])
+    dot3 = (tri[2,1]-tri[2,3])*(x-tri[1,3]) + (tri[1,3]-tri[1,1])*(y-tri[2,3])
     if dot3 > _eps
         return false
     end
@@ -326,7 +299,7 @@ function query_recursive(point::Union{AbstractVector{Float64},PyArray{Float64,1}
         return 0
     elseif isleaf(_idxtree)
         for idx in _idxtree.idxs
-            tri = tripoints[idx,:,:]
+            tri = tripoints[:,:,idx]
             if inside(point,tri)
                 return idx
             end
@@ -353,79 +326,21 @@ function query(point::Union{AbstractVector{Float64},PyArray{Float64,1}},_tritree
     return query_recursive(point,_tritree.tripoints,_tritree._idxtree)
 end
 
-### interpolation stuff ##
+### evaluation stuff ##
 
 function affine_transform_matrix(vertices::AbstractArray{Float64,2} )
-    x21 = vertices[2,1] - vertices[1,1]
-    y21 = vertices[2,2] - vertices[1,2]
-    x31 = vertices[3,1] - vertices[1,1]
-    y31 = vertices[3,2] - vertices[1,2]
+    x21 = vertices[1,2] - vertices[1,1]
+    y21 = vertices[2,2] - vertices[2,1]
+    x31 = vertices[1,3] - vertices[1,1]
+    y31 = vertices[2,3] - vertices[2,1]
     _J = x21*y31-x31*y21
     M = [y31 -x31 ; -y21 x21] ./ _J
     return M
 end
 
-function affine_transform_matrixT_in_place(vertices::Union{Matrix{Float64},SubArray{Float64,2}},M::Matrix{Float64} )
-    x21 = vertices[2,1] - vertices[1,1]
-    y21 = vertices[2,2] - vertices[1,2]
-    x31 = vertices[3,1] - vertices[1,1]
-    y31 = vertices[3,2] - vertices[1,2]
-    _J = x21*y31-x31*y21
-    M[1,1] = y31/_J
-    M[2,1] = -x31/_J
-    M[1,2] = -y21/_J
-    M[2,2] = x21/_J
-    return M
-end
-
-function affine_transform_matrix_inv(vertices::Array{Float64,2})
-    x21 = vertices[2,1] - vertices[1,1]
-    y21 = vertices[2,2] - vertices[1,2]
-    x31 = vertices[3,1] - vertices[1,1]
-    y31 = vertices[3,2] - vertices[1,2]
-    return [x21 x31 ; y21 y31]
-end
-
 function apply_affine_transform(vertices::AbstractArray{Float64,2},xy::AbstractVector{Float64})
     M = affine_transform_matrix(vertices)
-    return M * (xy .- vertices[1,:])
-end
-
-function jac(vertices::Array{Float64,2})
-    x21 = vertices[2,1] - vertices[1,1]
-    y21 = vertices[2,2] - vertices[1,2]
-    x31 = vertices[3,1] - vertices[1,1]
-    y31 = vertices[3,2] - vertices[1,2]
-    return x21*y31-x31*y21
-end
-
-function get_interp_weights(new_points::PyArray{Float64,2},_tritree::tritree)
-    _old_points = _tritree.tripoints
-    _new_points = pyconvert(Array{Float64,2},new_points)
-    N = size(_new_points,1)
-    _weights = Array{Float64}(undef,N,6)
-    _triidxs = Array{Int64}(undef,N)
-
-    for i in 1:N
-        new_point = _new_points[i,1:2]
-        _triidx = query(new_point,_tritree)
-        if _triidx != 0
-            _triidxs[i] = _triidx
-            triverts = _old_points[_triidx,:,:]
-            u,v = apply_affine_transform(triverts,new_point)
-
-            _weights[i,1] = N1(u,v)
-            _weights[i,2] = N2(u)
-            _weights[i,3] = N3(v)
-            _weights[i,4] = N4(u,v)
-            _weights[i,5] = N5(u,v)
-            _weights[i,6] = N6(u,v)
-        else
-            _weights[i,:] .= 0.
-            _triidxs[i] = 0
-        end
-    end
-    return (_triidxs,_weights)
+    return M * (xy .- vertices[:,1])
 end
 
 function evaluate_vec(point::Union{AbstractVector{Float64},PyArray{Float64,1}},field::Union{PyArray{T,1},Vector{T}},_tritree::tritree) :: Vector{T} where T<:Union{Float64,ComplexF64}
@@ -437,12 +352,13 @@ function evaluate_vec(point::Union{AbstractVector{Float64},PyArray{Float64,1}},f
     if typeof(field) <: PyArray
         field = pyconvert(Vector{dtype},field)
     end
+    
     _triidx = query(point,_tritree)
-    _triidxs = _tritree.connections[_triidx,:]
-    _edgeidxs = _tritree.edges[_triidx,:]
     val = [0. , 0.]
     if _triidx != 0
-        triverts = _tritree.tripoints[_triidx,:,:]
+        _triidxs = _tritree.tris[:,_triidx]
+        _edgeidxs = _tritree.edges[:,_triidx]
+        triverts = _tritree.tripoints[:,:,_triidx]
         val .+= LNe0(point, triverts, _triidxs) * field[_edgeidxs[1]]
         val .+= LNe1(point, triverts, _triidxs) * field[_edgeidxs[2]]
         val .+= LNe2(point, triverts, _triidxs) * field[_edgeidxs[3]]
@@ -462,19 +378,19 @@ function evaluate(point::Union{AbstractVector{Float64},PyArray{Float64,1}},field
     _triidx = query(point,_tritree)
     val = 0.
     if _triidx != 0
-        @views triverts = _tritree.tripoints[_triidx,:,:]
+        @views triverts = _tritree.tripoints[:,:,_triidx]
         u,v = apply_affine_transform(triverts,point)
         if order==2
-            val += N1(u,v) * field[_tritree.connections[_triidx,1]]
-            val += N2(u) * field[_tritree.connections[_triidx,2]]
-            val += N3(v) * field[_tritree.connections[_triidx,3]]
-            val += N4(u,v) * field[_tritree.connections[_triidx,4]]
-            val += N5(u,v) * field[_tritree.connections[_triidx,5]]
-            val += N6(u,v) * field[_tritree.connections[_triidx,6]]
+            val += N1(u,v) * field[_tritree.tris[1,_triidx]]
+            val += N2(u) * field[_tritree.tris[2,_triidx]]
+            val += N3(v) * field[_tritree.tris[3,_triidx]]
+            val += N4(u,v) * field[_tritree.tris[4,_triidx]]
+            val += N5(u,v) * field[_tritree.tris[5,_triidx]]
+            val += N6(u,v) * field[_tritree.tris[6,_triidx]]
         elseif order==1
-            val += LN1(u,v) * field[_tritree.connections[_triidx,1]]
-            val += LN2(u,v) * field[_tritree.connections[_triidx,2]]
-            val += LN3(u,v) * field[_tritree.connections[_triidx,3]]
+            val += LN1(u,v) * field[_tritree.tris[1,_triidx]]
+            val += LN2(u,v) * field[_tritree.tris[2,_triidx]]
+            val += LN3(u,v) * field[_tritree.tris[3,_triidx]]
         end
     end
     return val
@@ -489,10 +405,10 @@ function evaluate(point::Union{PyArray{Float64,2},Matrix{Float64}},field::Union{
     if typeof(field) <: PyArray
         field = pyconvert(Vector{dtype},field)
     end
-    out = Vector{dtype}(undef,size(point,1))
+    out = Vector{dtype}(undef,size(point,2))
 
-    for i in axes(point,1)
-        @views _point = point[i,:]
+    for i in axes(point,2)
+        @views _point = point[:,i]
         out[i] = evaluate(_point,field,_tritree,order=order)
     end
     return out
@@ -507,11 +423,11 @@ function evaluate_vec(point::Union{PyArray{Float64,2},Matrix{Float64}},field::Un
     if typeof(field) <: PyArray
         field = pyconvert(Vector{dtype},field)
     end
-    out = Array{dtype}(undef,size(point,1),2)
+    out = Array{dtype}(undef,2,size(point,2))
 
-    for i in axes(point,1)
-        @views _point = point[i,:] # technically further in memory i think
-        out[i,:] .= evaluate_vec(_point,field,_tritree)
+    for i in axes(point,2)
+        @views _point = point[:,i]
+        out[:,i] .= evaluate_vec(_point,field,_tritree)
     end
     return out
 end
@@ -524,8 +440,8 @@ function evaluate(pointsx::PyArray{Float64,1},pointsy::PyArray{Float64,1},field:
     field = pyconvert(Vector{dtype},field)
     out = Array{dtype,2}(undef,size(pointsx,1),size(pointsy,1))
 
-    for i in eachindex(pointsx)
-        for j in eachindex(pointsy)
+    for j in eachindex(pointsy)
+        for i in eachindex(pointsx)
             point = [pointsx[i],pointsy[j]]
             out[i,j] = evaluate(point,field,_tritree,order=order)
         end
@@ -539,40 +455,12 @@ function evaluate_vec(pointsx::PyArray{Float64,1},pointsy::PyArray{Float64,1},fi
     pointsx = pyconvert(Vector{Float64},pointsx)
     pointsy = pyconvert(Vector{Float64},pointsy)
     field = pyconvert(Vector{dtype},field)
-    out = Array{dtype,3}(undef,size(pointsx,1),size(pointsy,1),2)
+    out = Array{dtype,3}(undef,2, size(pointsx,1),size(pointsy,1))
 
-    for i in eachindex(pointsx)
-        for j in eachindex(pointsy)
+    for j in eachindex(pointsy)
+        for i in eachindex(pointsx)
             point = [pointsx[i],pointsy[j]]
-            out[i,j,:] .= evaluate_vec(point,field,_tritree)
-        end
-    end
-    return out
-end
-
-function evaluate_func(field::PyArray{T,1} where T<:Union{Float64,ComplexF64},_tritree::tritree)
-    """ convert a FE field into a function of point [x,y] """
-    dtype = eltype(field)
-    field = pyconvert(Vector{dtype},field)
-
-    function _inner_(point::Union{AbstractVector{Float64},PyArray{Float64,1}})
-        if typeof(point) <: PyArray
-            point = pyconvert(Vector{Float64},point)
-        end
-        return evaluate(point,field,_tritree)
-    end
-    return _inner_
-end
-
-function evaluate(f::Function,xa::PyArray{Float64,1},ya::PyArray{Float64,1})
-    xa = pyconvert(Vector{Float64},xa)
-    ya = pyconvert(Vector{Float64},ya)
-    out = Array{Float64}(undef,size(xa,1),size(ya,1))
-    for i in eachindex(xa)
-        for j in eachindex(ya)
-            x = xa[i]
-            y = ya[j]
-            out[i,j] = f([x,y])
+            out[:,i,j] .= evaluate_vec(point,field,_tritree)
         end
     end
     return out
@@ -635,6 +523,47 @@ end
 function dvN6(u,v)
     -4*u - 8*v + 4
 end
+
+function compute_NN_dNdN(t::PyArray{Float64,2})
+    return compute_NN_dNdN(pyconvert(Array{Float64,2},t))
+end
+
+function compute_NN_dNdN(t::Array{Float64,2}) :: Tuple{Vector{Float64},Vector{Float64}}
+    NN = zeros(Float64,6,6)
+    dNdN = zeros(Float64,6,6)
+
+    x21 = t[1,2] - t[1,1]
+    y21 = t[2,2] - t[2,1]
+    x31 = t[1,3] - t[1,1]
+    y31 = t[2,3] - t[2,1]
+    x32 = t[1,3] - t[1,2]
+    y32 = t[2,3] - t[2,2]
+    _J = x21*y31 - x31*y21
+
+    NN[1,1] = NN[2,2] = NN[3,3] = _J/60
+    NN[4,4] = NN[5,5] = NN[6,6] = 4*_J/45
+    NN[2,1] = NN[1,2] = NN[2,3] = NN[3,2] = NN[3,1] = NN[1,3] = -_J/360
+    NN[1,5] = NN[5,1] = NN[2,6] = NN[6,2] = NN[3,4] = NN[4,3] = -_J/90
+    NN[4,5] = NN[5,4] = NN[4,6] = NN[6,4] = NN[5,6] = NN[6,5] = 2*_J/45
+
+    dNdN[1,1] = (y32*y32 + x32*x32)/(2*_J)
+    dNdN[2,2] = (y31*y31 + x31*x31)/(2*_J)
+    dNdN[3,3] = (y21*y21 + x21*x21)/(2*_J)
+    dNdN[4,4] = 4/(3*_J) * (y32^2+y31*y21+x32^2+x31*x21)
+    dNdN[5,5] = 4/(3*_J) * (y31^2-y21*y32+x31^2-x21*x32)
+    dNdN[6,6] = 4/(3*_J) * (y21^2+y32*y31+x21^2+x32*x31)
+    dNdN[1,2] = dNdN[2,1] = (y32*y31+x32*x31)/(6*_J)
+    dNdN[2,3] = dNdN[3,2] = (y31*y21+x31*x21)/(6*_J)
+    dNdN[3,1] = dNdN[1,3] = (-y21*y32-x21*x32)/(6*_J)
+    dNdN[1,4] = dNdN[4,1] = dNdN[2,4] = dNdN[4,2]  = -2*(y32*y31+x32*x31)/(3*_J)
+    dNdN[1,6] = dNdN[6,1] = dNdN[3,6] = dNdN[6,3] = 2*(y21*y32+x21*x32)/(3*_J)
+    dNdN[3,5] = dNdN[5,3] = dNdN[2,5] = dNdN[5,2] = -2*(y31*y21+x31*x21)/(3*_J)
+    dNdN[4,5] = dNdN[5,4] =  4/(3*_J)*(y21*y32+x21*x32)
+    dNdN[5,6] = dNdN[6,5] = -4/(3*_J)*(y31*y32+x31*x32)
+    dNdN[6,4] = dNdN[4,6] = -4/(3*_J)*(y31*y21+x31*x21)
+    return vec(NN),vec(dNdN)
+end
+
 #endregion
 
 #region shapefuncs-scalar linear
@@ -646,6 +575,11 @@ function LN2(u,v)
 end
 function LN3(u,v)
     v
+end
+
+function computeL_NN_dNdN(tri::Array{Float64,2},tri_idx::Vector{Int})
+    pc = precompute(tri,tri_idx)
+    return vec(computeL_NN(pc)),vec(computeL_dNdN(pc))
 end
 
 #region shapefuncs-vector
@@ -671,29 +605,13 @@ function precompute(tri::Array{Float64,2},tri_idx::Vector{Int}) :: NTuple{10,Flo
     return (x21,y21,x31,y31,x31,y31,l12,l23,l31,_J)
 end
 
-function precompute_row_ordered(tri::Union{Array{Float64,2},PyArray{Float64,2}},tri_idx::Union{Vector{Int},PyArray{UInt64,1}}) :: NTuple{10,Float64}
-    x21 = tri[2,1] - tri[1,1]
-    y21 = tri[2,2] - tri[1,2]
-    x31 = tri[3,1] - tri[1,1]
-    y31 = tri[3,2] - tri[1,2]
-    x32 = tri[3,1] - tri[2,1]
-    y32 = tri[3,2] - tri[2,2]
-
-    s1 = (tri_idx[1]<tri_idx[2] ? 1 : -1)
-    s2 = (tri_idx[2]<tri_idx[3] ? 1 : -1)
-    s3 = (tri_idx[3]<tri_idx[1] ? 1 : -1)
-
-    l12 = sqrt(x21*x21+y21*y21)*s1 
-    l23 = sqrt(x32*x32+y32*y32)*s2
-    l31 = sqrt(x31*x31+y31*y31)*s3
-    _J = x21*y31 - x31*y21
-
-    return (x21,y21,x31,y31,x31,y31,l12,l23,l31,_J)
+function precompute(tri::PyArray{Float64,2},tri_idx::PyArray{UInt64,1}) :: NTuple{10,Float64}
+    return precompute(pyconvert(Array{Float64,2},tri),pyconvert(Vector{Int},tri_idx))
 end
 
 function LNe0(p,tri,tri_idx)
-    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precompute_row_ordered(tri,tri_idx)
-    x1,y1 = tri[1,1],tri[1,2]
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precompute(tri,tri_idx)
+    x1,y1 = tri[1,1],tri[2,1]
     x,y = p[1],p[2]
     xv = (-y + y31 + y1)/_J*l12
     yv = (x - x31 - x1)/_J*l12
@@ -701,8 +619,8 @@ function LNe0(p,tri,tri_idx)
 end
 
 function LNe1(p,tri,tri_idx)
-    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precompute_row_ordered(tri,tri_idx)
-    x1,y1 = tri[1,1],tri[1,2]
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precompute(tri,tri_idx)
+    x1,y1 = tri[1,1],tri[2,1]
     x,y = p[1],p[2]
     xv = (-y + y1)/_J*l23
     yv = (x - x1)/_J*l23
@@ -710,8 +628,8 @@ function LNe1(p,tri,tri_idx)
 end
 
 function LNe2(p,tri,tri_idx)
-    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precompute_row_ordered(tri,tri_idx)
-    x1,y1 = tri[1,1],tri[1,2]
+    x21,y21,x31,y31,x31,y31,l12,l23,l31,_J = precompute(tri,tri_idx)
+    x1,y1 = tri[1,1],tri[2,1]
     x,y = p[1],p[2]
     xv = (-y + y21 + y1)/_J*l31
     yv = (x - x21 - x1)/_J*l31
