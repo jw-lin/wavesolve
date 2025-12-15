@@ -487,42 +487,6 @@ end
 function N6(u,v)
     4 * v * (1 - u - v)
 end
-function duN1(u,v)
-    4 * (u + v) - 3
-end
-function dvN1(u,v)
-    4 * (u + v) - 3
-end
-function duN2(u,v)
-    4 * u - 1
-end
-function dvN2(u,v)
-    0.
-end
-function duN3(u,v)
-    0.
-end
-function dvN3(u,v)
-    4 * v - 1
-end
-function duN4(u,v)
-    -8*u - 4*v + 4
-end
-function dvN4(u,v)
-    -4 * u
-end
-function duN5(u,v)
-    4 * v
-end
-function dvN5(u,v)
-    4 * u
-end
-function duN6(u,v)
-    -4 * v
-end
-function dvN6(u,v)
-    -4*u - 8*v + 4
-end
 
 function compute_NN_dNdN(t::PyArray{Float64,2})
     return compute_NN_dNdN(pyconvert(Array{Float64,2},t))

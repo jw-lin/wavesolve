@@ -2,7 +2,6 @@ import pygmsh
 import numpy as np
 import matplotlib.pyplot as plt
 import gmsh
-import meshio
 import math
 
 #region miscellaneous functions   
@@ -42,6 +41,29 @@ def get_unique_edges(mesh,mutate=True):
         mesh.num_points = mesh.points.shape[0]
     return out,edge_indices
 
+def intersect(a,b,c,d):
+    # credit to stackoverflow guy
+    # stuff for line 1
+    a1 = b[1]-a[1]
+    b1 = a[0]-b[0]
+    c1 = a1*a[0] + b1*a[1]
+
+    # stuff for line 2
+    a2 = d[1]-c[1]
+    b2 = c[0]-d[0]
+    c2 = a2*c[0] + b2*c[1]
+
+    det = a1*b2 - a2*b1
+
+    if (det== 0):
+        # Return (infinity, infinity) if they never intersect
+        # By "never intersect", I mean that the lines are parallel to each other
+        return np.inf, np.inf
+    else:
+        x = (b2*c1 - b1*c2)/det
+        y = (a1*c2 - a2*c1)/det
+        return x,y
+
 def plot_mesh(mesh,IOR_dict=None,alpha=0.3,ax=None,plot_points=True):
     """ plot a mesh and associated refractive index distribution
     Args:
@@ -52,6 +74,7 @@ def plot_mesh(mesh,IOR_dict=None,alpha=0.3,ax=None,plot_points=True):
     verts=3
     if ax is None:
         fig,ax = plt.subplots(figsize=(5,5))
+        ax.set_aspect("equal")
         show=True
 
     ax.set_aspect('equal')
@@ -87,43 +110,6 @@ def plot_mesh(mesh,IOR_dict=None,alpha=0.3,ax=None,plot_points=True):
 
     if show:
         plt.show()
-
-def load_meshio_mesh(meshname):
-    mesh = meshio.read(meshname+".msh")
-    keys = list(mesh.cell_sets.keys())[:-1] # ignore bounding entities for now
-    _dict = {}
-    for key in keys:
-        _dict[key] = []
-
-    cells1data = []
-    for i,c in enumerate(mesh.cells): # these should all be triangle6
-        for key in keys:
-            if len(mesh.cell_sets[key][i]) != 0:
-                triangle_indices = mesh.cell_sets[key][i]
-                Ntris = len(triangle_indices)
-                totaltris = len(cells1data)
-                cons = mesh.cells[i].data[triangle_indices]
-                if len(cells1data) != 0:
-                    cells1data = np.concatenate([cells1data,cons])
-                else:
-                    cells1data = cons
-                if len(_dict[key]) != 0:
-                    _dict[key] = np.concatenate([_dict[key],np.arange(totaltris,totaltris+Ntris)])
-                else:
-                    _dict[key] = np.arange(totaltris,totaltris+Ntris)
-                continue
-    
-    # this is to match the format made by pygmsh
-    for key,val in _dict.items():
-        _dict[key] = [None,val,None]
-
-    mesh.cell_sets=_dict
-    mesh.cells[1].data = cells1data
-    for i in range(len(mesh.cells)):
-        if i == 1:
-            continue
-        mesh.cells[i]=None
-    return mesh
 
 def boolean_fragment(geom:pygmsh.occ.Geometry,_object,tool):
     """ fragment the tool and the object, and return the fragments in the following order:
@@ -245,7 +231,7 @@ class Prim2D:
 
     def make_points(self):
         """ make an Nx2 array of points for marking the primitive boundary,
-            according to some args.
+            according to some args. CCW ordering!
         """
         return self.points
 
@@ -262,6 +248,28 @@ class Prim2D:
             note that this doesn't need to be exact. the "distance" just needs to be positive outside the boundary, negative inside the boundary, and go to 0 as you approach the boundary.
         """
         pass
+
+    def get_nearest_bp_idx(self,point):
+        """ get the nearest boundary point index for a given point """
+        dists = [np.abs(dist(point,p)) for p in self.points]
+        return np.argmin(dists)
+
+    def plot_boundary(self,ax=None,color="red",alpha=1,lw=1):
+        if hasattr(self,"boundary_pts"):
+            points = self.boundary_pts
+        else:
+            points = self.points
+        show = False
+        if ax is None:
+            show = True
+            fig,ax = plt.subplots(1,1)
+            ax.set_aspect("equal")
+        points_arr =  np.zeros((points.shape[0]+1,points.shape[1]))
+        points_arr[:-1] = points
+        points_arr[-1] = points_arr[0]
+        ax.plot(points_arr.T[0],points_arr.T[1],color=color,alpha=alpha,lw=lw)
+        if show:
+            plt.show() 
 
 class Circle(Prim2D):
     """ a Circle primitive, defined by radius, center, and number of sides """
@@ -328,18 +336,7 @@ class Prim2DUnion(Prim2D):
         points = [p.points for p in ps]
         super().__init__(ps[0].n,label,points)
         self.ps = ps
-        d = 0
-        eps=1e-10
-        boundary_pts = []
-        for pts in points:
-            for pt in pts:
-                for p in ps:
-                    d = p.boundary_dist(pt[0],pt[1])
-                    if d+eps < 0:
-                        break
-                if d+eps >=0:
-                    boundary_pts.append(pt)
-        self.boundary_pts = np.array(boundary_pts)
+        self.boundary_pts = self.get_boundary_points()
 
     def make_points(self,args):
         out = []
@@ -366,6 +363,60 @@ class Prim2DUnion(Prim2D):
         else:
             poly = geom.add_polygon(self.points)
         return poly
+    
+    def get_boundary_points(self):
+        # this was a nightmare to write
+        ps = self.ps
+        max_dists = [ np.max(np.linalg.norm(p.points,axis=1)) for p in ps ]
+        pts_idx = np.argmax(max_dists)
+        pt_idx = np.argmax(np.linalg.norm(ps[pts_idx].points,axis=1))
+        eps=1e-10
+        boundary_pts = []
+        test_point = ps[pts_idx].points[pt_idx]
+        Np = len(ps[pts_idx].points)
+        counter = 0
+        while (len(boundary_pts) == 0 or dist(test_point,boundary_pts[0]) > eps):
+            dists = []
+            for j,p in enumerate(ps):
+                if j == pts_idx:
+                    dists.append(np.inf)
+                    continue
+                d = p.boundary_dist(test_point[0],test_point[1])
+                dists.append(d)
+            dists = np.array(dists)
+            imin = np.argmin(dists)
+            dmin = dists[imin]    
+            if dmin < 0:
+                #we've crossed something
+                p_last = ps[pts_idx]
+                
+                # goto another prim
+                pts_idx = imin
+
+                Np = len(ps[pts_idx].points)
+
+                a = boundary_pts[-1]
+                b = test_point
+
+                pt_idx = ps[pts_idx].get_nearest_bp_idx(test_point)
+                closest_on_new_prim = ps[pts_idx].points[pt_idx]
+
+                if p_last.boundary_dist(closest_on_new_prim[0],closest_on_new_prim[1])<0:
+                    c = ps[pts_idx].points[pt_idx]
+                    d =  ps[pts_idx].points[(pt_idx+1)%Np]
+                    pt_idx = (pt_idx + 1)%Np
+                else:
+                    c = ps[pts_idx].points[(pt_idx-1)%Np]
+                    d =  ps[pts_idx].points[pt_idx]
+                isect = intersect(a,b,c,d)
+                boundary_pts.append(isect)
+                test_point = ps[pts_idx].points[pt_idx]
+            else:
+                boundary_pts.append(test_point)
+                pt_idx = (pt_idx + 1)%Np
+                test_point = ps[pts_idx].points[pt_idx]
+            counter += 1
+        return np.array(boundary_pts)
 
 class Prim2DArray(Prim2D):
     """an array of identical non-intersecting Prim2Ds copied at different locations """
@@ -389,6 +440,17 @@ class Prim2DArray(Prim2D):
         polys = [geom.add_polygon(p) for p in self.points]
         return polys
 
+    def plot_boundary(self, ax=None, color="red", alpha=1, lw=1):
+        show = False
+        if ax is None:
+            show = True
+            fig,ax = plt.subplots(1,1)
+            ax.set_aspect("equal")
+        for p in self.ps:
+            p.plot_boundary(ax, color, alpha, lw)
+        if show:
+            plt.show()
+
 #endregion    
 
 #region Waveguide
@@ -401,7 +463,7 @@ class Waveguide:
     isect_skip_layers = [0]
 
     # mesh params
-    mesh_dist_scale = 1.0   # mesh boundary refinement linear distance scaling   
+    mesh_dist_scale = 0.25  # mesh boundary refinement linear distance scaling   
     mesh_dist_power = 1.0   # mesh boundary refinement power scaling
     min_mesh_size = 0.1     # minimum allowed mesh size
     max_mesh_size = 10.     # maximum allowed mesh size
@@ -423,7 +485,7 @@ class Waveguide:
         
         self.primsflat = primsflat
 
-    def make_mesh(self,algo=6,order=2,adaptive=False):
+    def make_mesh(self,algo=6,order=2,adaptive=True):
         """ construct a mesh with boundary refinement at material interfaces."""
 
         _scale = self.mesh_dist_scale
@@ -534,9 +596,10 @@ class Waveguide:
 
     def plot_mesh(self,mesh=None,IOR_dict=None,alpha=0.3,ax=None,plot_points=True):
         """ plot a mesh and associated refractive index distribution
-        Args:
-        mesh: the mesh to be plotted. if None, we auto-compute a mesh using default values
-        IOR_dict: dictionary that assigns each named region in the mesh to a refractive index value
+
+        ARGS:
+            mesh: the mesh to be plotted. if None, we auto-compute a mesh using default values
+            IOR_dict: dictionary that assigns each named region in the mesh to a refractive index value
         """
         if mesh is None:
             mesh = self.make_mesh()
@@ -545,29 +608,36 @@ class Waveguide:
 
         plot_mesh(mesh,IOR_dict,alpha,ax,plot_points)
     
-    def plot_boundaries(self):
+    @staticmethod
+    def plot_boundaries_recursive(prim,ax,color='red',lw=1,alpha=1):
+        if type(prim) is list:
+            for p in prim:
+                Waveguide.plot_boundaries_recursive(p,ax,color,lw,alpha)
+        else:
+            prim.plot_boundary(ax,color,lw,alpha)
+
+    def plot_boundaries(self,ax=None,color='red',lw=1,alpha=1):
         """ plot the boundaries of all prim2Dgroups. For unioned primitives, all boundaries of 
-            the original parts of the union are plotted in a lighter color. """
-        for group in self.prim2Dgroups:
-            if not type(group) == list:
-                group = [group]
-            for prim in group:
-                p = prim.points
-                if hasattr(p[0][0],'__len__'):
-                    for _p in p:
-                        p2 = np.zeros((_p.shape[0]+1,_p.shape[1]))
-                        p2[:-1] = _p[:]
-                        p2[-1] = _p[0]
-                        plt.plot(p2.T[0],p2.T[1],color='0.5')
-                else:
-                    p2 = np.zeros((p.shape[0]+1,p.shape[1]))
-                    p2[:-1] = p[:]
-                    p2[-1] = p[0]
-                    plt.plot(p2.T[0],p2.T[1],color='k')
-        plt.xlabel(r"$x$")
-        plt.ylabel(r"$y$")
-        plt.axis('equal')
-        plt.show()
+            the original parts of the union are plotted in a translucent color. 
+        
+        ARGS:
+            ax: matplotlib axis, optional
+            color: plotline color, default "red"
+            lw: linewidth, default 1
+            alpha: opacity, default 1
+        """
+        
+        show=False
+        if ax is None:
+            fig,ax = plt.subplots(figsize=(5,5))
+            ax.set_aspect("equal")
+            show=True
+        else:
+            ax.autoscale(False)
+        for prim in self.prim2Dgroups:
+            self.plot_boundaries_recursive(prim,ax,color,lw,alpha)
+        if show:
+            plt.show()
     
 class CircularFiber(Waveguide):
     """ circular step-index fiber """
@@ -668,7 +738,7 @@ class PhotonicBandgapFiber(Waveguide):
     def __init__(self,rvoid,rhole,rclad,nclad,spacing,hole_res,clad_res,hole_mesh_size=None,clad_mesh_size=None,nhole=1.):
         """
         ARGS:
-            rcore: the radius of the central air hole
+            rvoid: the radius of the central air hole
             rhole: the radius of the cladding air holes perforating the fiber
             rclad: the outer cladding radius of the fiber
             nclad: the index of the cladding material
