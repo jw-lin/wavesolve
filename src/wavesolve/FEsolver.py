@@ -41,6 +41,7 @@ def solve_waveguide(mesh,wl,IOR_dict,Nmax=6,target_neff=None):
         IOR_dict: a dictionary assigning different named regions of the mesh different refractive index values
         Nmax: return only the <Nmax> largest eigenvalue/eigenvector pairs
         target_neff: search for modes with indices close to but below this value. if None, target_neff is set to the maximum index in the guide.
+    
     RETURNS:
         w: array of eigenvalues, descending order
         v: array of corresponding eigenvectors (waveguide modes)

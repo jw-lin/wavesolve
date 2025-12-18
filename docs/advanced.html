@@ -1,0 +1,730 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Advanced usage &#8212; wavesolve 0.0.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css?v=7f9a90b1" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=e645c8fa"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=30646c52"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'advanced';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Reference" href="reference.html" />
+    <link rel="prev" title="3. Hollow core photonic crystal fiber" href="hollowPCF.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">wavesolve 0.0.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="PL3.html">1. 3-port photonic lantern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ellip.html">2. Elliptical core fiber</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hollowPCF.html">3. Hollow core photonic crystal fiber</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Advanced usage</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="wavesolve.waveguide.html">wavesolve.waveguide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wavesolve.FEsolver.html">wavesolve.FEsolver</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/jw-lin/wavesolve/tree/julia" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/jw-lin/wavesolve/tree/julia/edit/package/docs_source/advanced.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/advanced.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Advanced usage</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#making-a-custom-waveguide">Making a custom <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prim2d-class"><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> class</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#waveguide-construction"><code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> construction</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mesh-generation">Mesh generation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scalar-modes">Scalar modes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#solve">Solve</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plot">Plot</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate">Evaluate</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vector-modes">Vector modes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Solve</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Plot</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Evaluate</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="advanced-usage">
+<h1>Advanced usage<a class="headerlink" href="#advanced-usage" title="Link to this heading">#</a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#making-a-custom-waveguide" id="id6">Making a custom <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code></a></p></li>
+<li><p><a class="reference internal" href="#mesh-generation" id="id7">Mesh generation</a></p></li>
+<li><p><a class="reference internal" href="#scalar-modes" id="id8">Scalar modes</a></p></li>
+<li><p><a class="reference internal" href="#vector-modes" id="id9">Vector modes</a></p></li>
+</ul>
+</nav>
+<section id="making-a-custom-waveguide">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Making a custom <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code></a><a class="headerlink" href="#making-a-custom-waveguide" title="Link to this heading">#</a></h2>
+<p>In this section we discuss how to build a custom <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> from the bottom-up from basic geometric shapes.</p>
+<section id="prim2d-class">
+<h3><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> class<a class="headerlink" href="#prim2d-class" title="Link to this heading">#</a></h3>
+<p>The basic parent class that represents a refractive index geometry is a <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> (2D primitive). Each <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> stores a refractive index value and an array of <span class="math notranslate nohighlight">\((x,y)\)</span> points bounding the physical region which contains that index value. A <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> is initialized as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">prim2D</span> <span class="o">=</span> <span class="n">Prim2D</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">label</span><span class="p">,</span><span class="n">points</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Arguments</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span></code> : the refractive index of the primitive.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label</span></code> : a string identifier to attach to the primitive (e.g. “core” or “cladding”).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">points</span></code> (optional): a 2-element array of <span class="math notranslate nohighlight">\((x,y)\)</span> points corresponding to a material interface. The first and last point are automatically connected. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>, since <code class="docutils literal notranslate"><span class="pre">points</span></code> can also be generated with functional dependence, as mentioned next.</p></li>
+</ol>
+<p>To make custom geometries, define a subclass that inherits from <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> and generate <code class="docutils literal notranslate"><span class="pre">points</span></code> according to specific rules. These subclasses should implement their own <code class="docutils literal notranslate"><span class="pre">make_points()</span></code> functions, which at minimum should take in some set of arguments (like radius, for a circle primitive) and return the corresponding point array <strong>in counterclockwise order</strong>. Subclasses should also implement the following function:</p>
+<p><code class="docutils literal notranslate"><span class="pre">boundary_dist(x,y)</span></code> : compute the signed minimum distance between the point <span class="math notranslate nohighlight">\((x,y)\)</span> and the primitive boundary, which is negative value if the point is inside the boundary.</p>
+<p>See the <code class="docutils literal notranslate"><span class="pre">Circle</span></code>, <code class="docutils literal notranslate"><span class="pre">Ellipse</span></code>, and <code class="docutils literal notranslate"><span class="pre">Rectangle</span></code> classes for examples.</p>
+<p>More complicated primitives can be created through <code class="docutils literal notranslate"><span class="pre">waveguide.Prim2DUnion</span></code>, representing a list of intersecting primitives, and <code class="docutils literal notranslate"><span class="pre">waveguide.Prim2DArray</span></code>, representing a list of non-intersecting primitives.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">points</span></code> should always be ordered counterclockwise!</p>
+</div>
+</section>
+<section id="waveguide-construction">
+<h3><code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> construction<a class="headerlink" href="#waveguide-construction" title="Link to this heading">#</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> stores a (potentially nested) list of <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects, which I will call <code class="docutils literal notranslate"><span class="pre">prim2Dgroups</span></code>. The refractive index profile of each top-level element in <code class="docutils literal notranslate"><span class="pre">prim2Dgroups</span></code> is overwritten by the immediate next element. An element in <code class="docutils literal notranslate"><span class="pre">prim2Dgroups</span></code> can also be a list of <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects; in this case all elements in the sublist override the refractive index profile of the previous element. <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> So, an optical fiber might store its primitives as <code class="docutils literal notranslate"><span class="pre">[cladding,core]</span></code>, where <code class="docutils literal notranslate"><span class="pre">cladding</span></code> and <code class="docutils literal notranslate"><span class="pre">core</span></code> are <code class="docutils literal notranslate"><span class="pre">Circle(Prim2D)</span></code> objects corresponding to the cladding and core regions; a multicore fiber could have the structure <code class="docutils literal notranslate"><span class="pre">[cladding,[core1,core2,...]]</span></code>. A <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> is initialized as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wvg</span> <span class="o">=</span> <span class="n">Waveguide</span><span class="p">(</span><span class="n">prim2Dgroups</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Arguments</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">prim2Dgroups</span></code> : the potentially nested list of 2D primitives mentioned above.</p></li>
+</ol>
+<p>All <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> objects take multiple <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects and arrange them as desired in this list. The <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> class is mainly used to generate meshes, which can be tuned via <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> class attributes, as will be shown in the next section. For example <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> subclasses, check out the <code class="docutils literal notranslate"><span class="pre">CircularFiber</span></code>, <code class="docutils literal notranslate"><span class="pre">EllipticalFiber</span></code>, and various photonic-lantern-related classes.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects in the same sublist should never intersect. However, they can have different <code class="docutils literal notranslate"><span class="pre">label</span></code>s and refractive indices. If you want to model intersecting primitives, you should make a <code class="docutils literal notranslate"><span class="pre">Prim2DUnion</span></code>. See <a class="reference internal" href="PL3.html"><span class="doc">3-port photonic lantern</span></a>  for an example.</p>
+</aside>
+</aside>
+<p>Once the waveguide is initialized, you can get the refractive index dictionary of the waveguide with <code class="docutils literal notranslate"><span class="pre">Waveguide.assign_IOR()</span></code>. This is what passes material information to the eigensolver.</p>
+<p>A useful plotting method for checking your work is <code class="docutils literal notranslate"><span class="pre">Waveguide.plot_boundaries()</span></code>, which plots all material boundaries in waveguide.</p>
+</section>
+</section>
+<section id="mesh-generation">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Mesh generation</a><a class="headerlink" href="#mesh-generation" title="Link to this heading">#</a></h2>
+<p>Mesh generation is handled by the function</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Waveguide</span><span class="o">.</span><span class="n">make_mesh</span><span class="p">(</span><span class="n">algo</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">adaptive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Optional Arguments</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">algo</span></code> : the mesh generation algorithm used by Gmsh. The default <code class="docutils literal notranslate"><span class="pre">6</span></code> is good starting point.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">order</span></code> : the order of the finite elements. Order <code class="docutils literal notranslate"><span class="pre">1</span></code> (linear triangle) and <code class="docutils literal notranslate"><span class="pre">2</span></code> (quadratic triangle) are implemented.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">adaptive</span></code>: whether or not to refine mesh element sizes so that the mesh is most refined only at primitive boundaries.</p></li>
+</ol>
+<p>Adaptive meshing is slower but tends to give more accurate meshes and ultimately faster solve times. In adaptive meshing mode, the target triangle size at a given <span class="math notranslate nohighlight">\((x,y)\)</span> point is computed as</p>
+<div class="math notranslate nohighlight">
+\[{\rm target \, size} = d_0\left(1+ \dfrac{s \, d(x,y)}{d_0} \right)^p\]</div>
+<p>where <span class="math notranslate nohighlight">\(d_0\)</span> is the “default” mesh size corresponding to the resolution of the <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> boundary, <span class="math notranslate nohighlight">\(d(x,y)\)</span> is the distance between the point <span class="math notranslate nohighlight">\((x,y)\)</span> and the primitive’s boundary, and <span class="math notranslate nohighlight">\(s\)</span> and <span class="math notranslate nohighlight">\(p\)</span> are variables; higher values mean that mesh size will increase more rapidly away from the boundary. For multiple primitives, a target size is computed for each and the minimum size is taken. Then the target size is clipped between a minimum and maximum allowed value. The parameter values for the adaptive scheme are set through the following <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> class attributes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh_dist_scale</span></code> : <span class="math notranslate nohighlight">\(s\)</span>, the mesh boundary refinement linear distance scaling. Default <code class="docutils literal notranslate"><span class="pre">0.25</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh_dist_power</span></code> : <span class="math notranslate nohighlight">\(p\)</span>, mesh boundary refinement power scaling. Default <code class="docutils literal notranslate"><span class="pre">1</span></code> (linear)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_mesh_size</span></code> : minimum allowed mesh size, default <code class="docutils literal notranslate"><span class="pre">0.1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_mesh_size</span></code> : maximum allowed mesh size, default <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
+</ul>
+<p>Users can also specify a target mesh size, and toggle boundary refinement on a per-primitive basis. This is done through the following <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> attributes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh_size</span></code> : target mesh size within the boundary of the primitive (otherwise the mesh size is set by the scheme described above.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skip_refinement</span></code> : whether or not mesh refinement should be applied at the primitive boundary. The outer boundary of the entire mesh should have this set to <code class="docutils literal notranslate"><span class="pre">True</span></code>; default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+<p>To view meshes, the <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> class implements</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Waveguide</span><span class="o">.</span><span class="n">plot_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">IOR_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Optional arguments</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code>: the mesh to plot. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, one is generated using default values through <code class="docutils literal notranslate"><span class="pre">make_mesh()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IOR_dict</span></code>: dictionary of refractive index values. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, one is generated through <code class="docutils literal notranslate"><span class="pre">assign_IOR()</span></code>.</p></li>
+</ol>
+</section>
+<section id="scalar-modes">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Scalar modes</a><a class="headerlink" href="#scalar-modes" title="Link to this heading">#</a></h2>
+<section id="solve">
+<h3>Solve<a class="headerlink" href="#solve" title="Link to this heading">#</a></h3>
+<p>Scalar eigenmodes can be solved on <strong>both</strong> order 1 and order 2 meshes. In either case, we use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">eigvals</span><span class="p">,</span> <span class="n">eigvecs</span> <span class="o">=</span> <span class="n">solve_waveguide</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">,</span><span class="n">Nmax</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">target_neff</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Arguments</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code>: mesh object corresponding to waveguide geometry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wl</span></code>: wavelength, defined in the same units as mesh point positions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IOR_dict</span></code>: a dictionary assigning different named regions of the mesh different refractive index values</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Nmax</span></code>: (optional) return only the <cite>Nmax</cite> largest eigenvalue/eigenvector pairs; default 6.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_neff</span></code>: (optional) upper bound on expected effective index of the mode you want to solve for; autocomputed if <cite>None</cite>.</p></li>
+</ol>
+<p>Note that the autocomputed <code class="docutils literal notranslate"><span class="pre">target_neff</span></code> will typically be too high for waveguides which guide light in air or other low-index materials, e.g. <a class="reference internal" href="hollowPCF.html"><span class="doc">Hollow core photonic crystal fiber</span></a>.</p>
+<p>To count the number of guided modes, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_modes</span> <span class="o">=</span> <span class="n">FEsolver</span><span class="o">.</span><span class="n">count_modes</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This function will only work for waveguides with weak index contrast.</p>
+</section>
+<section id="plot">
+<h3>Plot<a class="headerlink" href="#plot" title="Link to this heading">#</a></h3>
+<p>To plot a scalar field, e.g. a scalar eigenmode (which is a row of the <code class="docutils literal notranslate"><span class="pre">eigvecs</span></code> matrix above), use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot_scalar_field</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">show_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">res</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Arguments</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code>: finite element mesh</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">field</span></code>: an array (column vector) corresponding to an eigenmode</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">show_mesh</span></code>: (optional) set True to additionally plot the mesh geometry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ax</span></code>: (optional) a matplotlib axis to plot on</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">res</span></code>: (optional) grid resolution, make tuple to set xres and yres separately</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds</span></code>: (optional) 4-element array <code class="docutils literal notranslate"><span class="pre">[xmin,xmax,ymin,ymax]</span></code>, setting plot bounds. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the mesh bounds.</p></li>
+</ol>
+</section>
+<section id="evaluate">
+<h3>Evaluate<a class="headerlink" href="#evaluate" title="Link to this heading">#</a></h3>
+<p>To evaluate a finite-element field at an arbitrary point, <code class="docutils literal notranslate"><span class="pre">wavesolve.FEsolver</span></code> provides two functions. First, there is</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_amp</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">point</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Arguments</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">point</span></code> : a 2-element array <code class="docutils literal notranslate"><span class="pre">[x,y]</span></code> <em>or</em> an <span class="math notranslate nohighlight">\(N\times 2\)</span> array of such points.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">field</span></code> : the electric field (e.g. an eigenmode) to be evaluated</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code> : the finite element mesh on which <code class="docutils literal notranslate"><span class="pre">field</span></code> is defined.</p></li>
+</ol>
+<p><strong>Returns</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">field_amp</span></code> : the field amplitude at <code class="docutils literal notranslate"><span class="pre">point</span></code>, or an array of field amplitudes for each point in <code class="docutils literal notranslate"><span class="pre">point</span></code>.</p></li>
+</ol>
+<p>To evaluate a <code class="docutils literal notranslate"><span class="pre">field</span></code> on a rectangular grid, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_amp_grid</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">xpoints</span><span class="p">,</span><span class="n">ypoints</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">xpoints</span></code> : a 1D array of <span class="math notranslate nohighlight">\(x\)</span> coordinates to evaluate on</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ypoints</span></code> : a 1D array of <span class="math notranslate nohighlight">\(y\)</span> coordinates to evaluate on</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">field</span></code> : the electric field (e.g. an eigenmode) to be evaluated</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code> : the finite element mesh on which <code class="docutils literal notranslate"><span class="pre">field</span></code> is defined.</p></li>
+</ol>
+<p><strong>Returns</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">field_amp_grid</span></code> : a 2D array of field amplitudes corresponding to the grid defined by <code class="docutils literal notranslate"><span class="pre">pointsx</span></code> and <code class="docutils literal notranslate"><span class="pre">pointsy</span></code>.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Grid evaluation functions (and <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> in general) treat the <strong>first</strong> axis of a matrix as <span class="math notranslate nohighlight">\(x\)</span> and the <strong>second</strong> as <span class="math notranslate nohighlight">\(y\)</span>. Therefore, if you use a plotting function such as <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.imshow</span></code>, you need to transpose the field data (and set <code class="docutils literal notranslate"><span class="pre">origin=&quot;lower&quot;</span></code>).</p>
+</div>
+</section>
+</section>
+<section id="vector-modes">
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">Vector modes</a><a class="headerlink" href="#vector-modes" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> divides field vectors into transverse and longitudinal components. The longitudinal component is treated in the same way as a scalar mode, which has a defined value at every node position. In contrast, the transverse electric field is specified by assigning a value for the tangential electric field to every mesh edge. If <span class="math notranslate nohighlight">\(N_e\)</span> is the number of mesh edges and <span class="math notranslate nohighlight">\(N_n\)</span> is the number of nodes, a vector mode is an <span class="math notranslate nohighlight">\(N_e+N_n\)</span> array whose first <span class="math notranslate nohighlight">\(N_e\)</span> elements determine the transverse field and whose last <span class="math notranslate nohighlight">\(N_n\)</span> components determine the longitudinal field.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> performs a change of variables to treat both the transverse and longitudinal field components as purely real, when physically they should be 90 degrees out of phase (i.e. the longitudinal field should be purely imaginary). See <a class="reference external" href="https://ieeexplore.ieee.org/document/85399">*Lee et al. 1991*</a> for more details.</p>
+</div>
+<section id="id3">
+<h3>Solve<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<p>The syntax for modesolving is basically the same as the in the scalar case, except that all input meshes must be order 1. Use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">eigvals</span><span class="p">,</span> <span class="n">eigvecs</span> <span class="o">=</span> <span class="n">solve_waveguide_vec</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">,</span><span class="n">Nmax</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">target_neff</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Arguments</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code>: an order 1 mesh object corresponding to waveguide geometry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wl</span></code>: wavelength, defined in the same units as mesh point positions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IOR_dict</span></code>: a dictionary assigning different named regions of the mesh different refractive index values</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Nmax</span></code>: (optional) return only the <code class="docutils literal notranslate"><span class="pre">Nmax</span></code> largest eigenvalue/eigenvector pairs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_neff</span></code>: (optional) expected effective index of the mode you want to solve for; autocomputed if <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ol>
+<p><strong>Returns</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eigvals</span></code>: array of eigenvalues, descending order</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eigvecs</span></code>: array of vector-valued eigenmodes</p></li>
+</ol>
+<p>The eigenvectors and eigenvalues returned by <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> should always be real, but the data is returned as complex just in case.</p>
+<p>The default solving mode is to transform the generalized eigenproblem <span class="math notranslate nohighlight">\(A x =\lambda B x\)</span> is transformed to <span class="math notranslate nohighlight">\(Cx = \lambda x\)</span> where <span class="math notranslate nohighlight">\(C\)</span> solves <span class="math notranslate nohighlight">\(BC = A\)</span>; this system is solved with <code class="docutils literal notranslate"><span class="pre">Pardiso.jl</span></code>.</p>
+<p>To count the guided modes, I generally recommend to distinguish between the physical and nonphysical modes by eye. However, for weak index constrast, <code class="docutils literal notranslate"><span class="pre">count_modes()</span></code> will still work.</p>
+</section>
+<section id="id4">
+<h3>Plot<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p>To plot a vector eigenmode, use <code class="docutils literal notranslate"><span class="pre">plot_vector_field()</span></code>, which has the same signature as <code class="docutils literal notranslate"><span class="pre">plot_scalar_field()</span></code> but produces a quiver plot corresponding to the transverse component of the electric field, and optionally a scalar plot of the longitudinal field as well.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot_vector_field</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">show_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">arrows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">res</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Arguments</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code>: finite element mesh</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">field</span></code>: a 1D array (column vector) corresponding to a vector-valued field (e.g. eigenmode) which encodes both transverse and longitudinal components</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">show_mesh</span></code>: (optional) plot the mesh geometry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ax</span></code>: (optional) put the plot(s) on a matplotlib axis. If one axis is given, only the transverse part is plotted. if (ax0,ax1) is given, the longitudinal component is also plotted. If None, axes are made for both.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">arrows</span></code> : (optional) whether or not to overplot field arrows</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">res</span></code>: (optional) grid resolution, can be a tuple</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds</span></code>: 4-element array <code class="docutils literal notranslate"><span class="pre">[xmin,xmax,ymin,ymax]</span></code>, setting plot boundary.</p></li>
+</ol>
+</section>
+<section id="id5">
+<h3>Evaluate<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>You can use the same functions as in the scalar case. However, due to the vectorial nature of the fields, evaluation functions will return two quantities: the vectorial transverse field, and the scalar longitudinal field. For the transverse field, the last axis of the matrix will have length 2, corresponding to the <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> components. For example, if <code class="docutils literal notranslate"><span class="pre">xpoints</span></code> and <code class="docutils literal notranslate"><span class="pre">ypoints</span></code> are <span class="math notranslate nohighlight">\(N\)</span>-long coordinate arrays, then for</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_amp_xy</span><span class="p">,</span> <span class="n">field_amp_z</span> <span class="o">=</span> <span class="n">evaluate_grid</span><span class="p">(</span><span class="n">xpoints</span><span class="p">,</span><span class="n">ypoints</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">field_amp_xy</span></code> will be an <span class="math notranslate nohighlight">\(N\times N\times 2\)</span> array and <code class="docutils literal notranslate"><span class="pre">field_amp_z</span></code> will be an <span class="math notranslate nohighlight">\(N\times N\)</span> array.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="hollowPCF.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">3. </span>Hollow core photonic crystal fiber</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="reference.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#making-a-custom-waveguide">Making a custom <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prim2d-class"><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> class</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#waveguide-construction"><code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> construction</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mesh-generation">Mesh generation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scalar-modes">Scalar modes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#solve">Solve</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plot">Plot</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate">Evaluate</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vector-modes">Vector modes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Solve</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Plot</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Evaluate</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Jon Lin
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

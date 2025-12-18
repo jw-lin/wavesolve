@@ -1,0 +1,659 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Quickstart &#8212; wavesolve 0.0.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css?v=7f9a90b1" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=e645c8fa"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=30646c52"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'quickstart';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">wavesolve 0.0.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Quickstart</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="PL3.html">1. 3-port photonic lantern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ellip.html">2. Elliptical core fiber</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hollowPCF.html">3. Hollow core photonic crystal fiber</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced usage</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference.html">Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="wavesolve.waveguide.html">wavesolve.waveguide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wavesolve.FEsolver.html">wavesolve.FEsolver</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/jw-lin/wavesolve/tree/julia" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/jw-lin/wavesolve/tree/julia/edit/package/docs_source/quickstart.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/quickstart.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Quickstart</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#waveguide-basics">1. <code class="docutils literal notranslate"><span class="pre">waveguide</span></code> basics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fesolver-basics-scalar">2. <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code> basics - scalar</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fesolver-basics-vector">3. <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code> basics - vector</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading">#</a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#waveguide-basics" id="id1">1. <code class="docutils literal notranslate"><span class="pre">waveguide</span></code> basics</a></p></li>
+<li><p><a class="reference internal" href="#fesolver-basics-scalar" id="id2">2. <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code> basics - scalar</a></p></li>
+<li><p><a class="reference internal" href="#fesolver-basics-vector" id="id3">3. <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code> basics - vector</a></p></li>
+</ul>
+</nav>
+<section id="waveguide-basics">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">1. <code class="docutils literal notranslate"><span class="pre">waveguide</span></code> basics</a><a class="headerlink" href="#waveguide-basics" title="Link to this heading">#</a></h2>
+<p>Waveguides are defined as classes. There are several pre-defined classes, and users may define their own which inherit from a base <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> class. The full documentation is <a class="reference internal" href="wavesolve.waveguide.html"><span class="doc">here</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> objects have one ultimate purpose: they create finite-element meshes, through</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesh</span> <span class="o">=</span> <span class="n">Waveguide</span><span class="o">.</span><span class="n">make_mesh</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Eigenmodes are computed on this mesh. <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> objects also have auxiliary plotting functions. Using the pre-defined <code class="docutils literal notranslate"><span class="pre">CircularFiber</span></code> class, which represents a circular step-index optical fiber, as an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wavesolve.waveguide</span><span class="w"> </span><span class="kn">import</span> <span class="n">CircularFiber</span>
+
+<span class="c1">#params</span>
+<span class="n">rcore</span> <span class="o">=</span> <span class="mi">5</span>               <span class="c1"># core radius, assumed um</span>
+<span class="n">rclad</span> <span class="o">=</span> <span class="mi">15</span>              <span class="c1"># outer radius of simulation boundary, um</span>
+<span class="n">ncore</span> <span class="o">=</span> <span class="mf">1.444</span><span class="o">+</span><span class="mf">8.8e-3</span>    <span class="c1"># core refractive index</span>
+<span class="n">nclad</span> <span class="o">=</span> <span class="mf">1.444</span>           <span class="c1"># cladding refractive index</span>
+<span class="n">core_res</span> <span class="o">=</span> <span class="mi">64</span>           <span class="c1"># number of line segments used to refine the core-cladding boundary</span>
+<span class="n">clad_res</span> <span class="o">=</span> <span class="mi">64</span>           <span class="c1"># number of line segments for outer clad boundary</span>
+
+<span class="c1"># make waveguide</span>
+<span class="n">fiber</span> <span class="o">=</span> <span class="n">CircularFiber</span><span class="p">(</span><span class="n">rcore</span><span class="p">,</span><span class="n">rclad</span><span class="p">,</span><span class="n">ncore</span><span class="p">,</span><span class="n">nclad</span><span class="p">,</span><span class="n">core_res</span><span class="p">,</span><span class="n">clad_res</span><span class="p">,</span><span class="n">core_mesh_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># make a plot mesh</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">fiber</span><span class="o">.</span><span class="n">make_mesh</span><span class="p">()</span>
+<span class="n">fiber</span><span class="o">.</span><span class="n">plot_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/76d050532caebcb3e64549359152951f/quickstart-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/a90fd4d072368b5abf0ad4b4b47446e4/quickstart-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/5542ee91b84f977f9d338c278e6c9890/quickstart-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/a9f439cd9e186c61d98f1a765fc4c40b/quickstart-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/quickstart-1.png" class="plot-directive" src="_images/quickstart-1.png" />
+</figure>
+<p>More generally, <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> objects are constructed from a list of 2D primitives (<code class="docutils literal notranslate"><span class="pre">waveguide.Prim2D</span></code>), which contain both geometry and refractive index information; examples include <code class="docutils literal notranslate"><span class="pre">Circle</span></code> and <code class="docutils literal notranslate"><span class="pre">Rectangle</span></code>. For instance, the <code class="docutils literal notranslate"><span class="pre">CircularFiber</span></code> above is essentially the same as <code class="docutils literal notranslate"><span class="pre">Waveguide([clad,core])</span></code>, where <code class="docutils literal notranslate"><span class="pre">clad</span></code> and <code class="docutils literal notranslate"><span class="pre">core</span></code> are the cladding and core <code class="docutils literal notranslate"><span class="pre">Circle</span></code> objects, respectively. Later items in the list overwrite earlier items in refractive index.</p>
+<p>Every <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> also comes with the function <code class="docutils literal notranslate"><span class="pre">assign_IOR()</span></code>, which creates a Python dictionary that maps mesh triangles to refractive index values. This is how refractive index information is passed to the mode solver. Let’s make the dictionary for <code class="docutils literal notranslate"><span class="pre">fiber</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">IOR_dict</span> <span class="o">=</span> <span class="n">fiber</span><span class="o">.</span><span class="n">assign_IOR</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/1f6355e5c2068416712a3ce6c6790dce/quickstart-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>)</p>
+</section>
+<section id="fesolver-basics-scalar">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">2. <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code> basics - scalar</a><a class="headerlink" href="#fesolver-basics-scalar" title="Link to this heading">#</a></h2>
+<p>This module takes meshes generated by <code class="docutils literal notranslate"><span class="pre">waveguide</span></code> and solves the corresponding generalized eigenvalue problem to get the waveguide eigenvectors. Each element in an eigenvector corresponds to an electric field amplitude at a point in the finite element mesh.</p>
+<p>Given a mesh, we solve for the scalar eigenmodes using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">eigvals</span><span class="p">,</span> <span class="n">eigvecs</span> <span class="o">=</span> <span class="n">FEsolver</span><span class="o">.</span><span class="n">solve_waveguide</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where the arguments are as follows:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code> : the finite element mesh generated by <code class="docutils literal notranslate"><span class="pre">Waveguide.make_mesh()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wl</span></code> : the target wavelength, in the same units as for <code class="docutils literal notranslate"><span class="pre">mesh</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IOR_dict</span></code> : a dictionary which assigns groups of triangles in <code class="docutils literal notranslate"><span class="pre">mesh</span></code> to their refractive index value, e.g. the output of <code class="docutils literal notranslate"><span class="pre">Waveguide.assign_IOR()</span></code></p></li>
+</ol>
+<p>The return values are</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eigvals</span></code> : the array of eigenvalues</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eigvecs</span></code> : the matrix of eigenvectors; each <strong>row</strong> is an eigenvector.</p></li>
+</ol>
+<p>I use the <code class="docutils literal notranslate"><span class="pre">CircularFiber</span></code> from earlier an an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wavesolve.FEsolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_waveguide</span>
+
+<span class="n">wl</span> <span class="o">=</span> <span class="mf">1.55</span> <span class="c1"># um</span>
+<span class="n">eigvals</span><span class="p">,</span> <span class="n">eigvecs</span> <span class="o">=</span> <span class="n">solve_waveguide</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/9053eda73d71fb59c430f4ca53a5d416/quickstart-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>)</p>
+<p>The eigenvalues correspond to <span class="math notranslate nohighlight">\(\beta^2\)</span> where <span class="math notranslate nohighlight">\(\beta\)</span> is the mode propagation constant. Eigenvalues can be converted to effective refractive indices using <code class="docutils literal notranslate"><span class="pre">FEsolver.get_eff_index(wl,eigval)</span></code>.</p>
+<p>To view the eigenvectors, we can use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FEsolver</span><span class="o">.</span><span class="n">plot_scalar_field</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which has the arguments</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh</span></code> : the finite element mesh</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">field</span></code> : the scalar field (e.g. eigenvector) to be plotted</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ax</span></code> : (optional) a <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> axis to plot on; if <code class="docutils literal notranslate"><span class="pre">None</span></code>, an axis will be made</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds</span></code> : 4-element array <code class="docutils literal notranslate"><span class="pre">[xmin,xmax,ymin,ymax]</span></code>, setting plot boundary. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the mesh boundary</p></li>
+</ol>
+<p>Below I plot the first 3 modes from above.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wavesolve.FEsolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_scalar_field</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">fig</span><span class="p">,</span><span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axs</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">plot_scalar_field</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">eigvecs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/c586ba27f4649751a0e7a614ea47629c/quickstart-4.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/721e7b0d4a3552943068b0b6a5e2e54a/quickstart-4.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/7eaad16579b2a3ccc1e508474c1d7b12/quickstart-4.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/4efd1cf276c7661993797ff34f24a64d/quickstart-4.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/quickstart-4.png" class="plot-directive" src="_images/quickstart-4.png" />
+</figure>
+<p>These are the LP<sub>01</sub> and LP<sub>11</sub> modes; the rest are spurious cladding modes. For waveguides with weak index contrast, the number of non-spurious guided modes may be computed using <code class="docutils literal notranslate"><span class="pre">count_modes</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wavesolve.FEsolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">count_modes</span>
+<span class="n">num_modes</span> <span class="o">=</span> <span class="n">count_modes</span><span class="p">(</span><span class="n">eigvals</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;number of guided modes: &quot;</span><span class="p">,</span><span class="n">num_modes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/a32cb7b21fd9f139b113872a4a699012/quickstart-5.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>)</p>
+<p>This should give the output</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">number</span> <span class="n">of</span> <span class="n">guided</span> <span class="n">modes</span><span class="p">:</span>  <span class="mi">3</span>
+</pre></div>
+</div>
+<p>To evaluate the field amplitude at an arbitrary point, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_amp</span> <span class="o">=</span> <span class="n">FEsolver</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">point</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">point</span></code> is a <span class="math notranslate nohighlight">\(2\times 1\)</span> array containing the <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> coordinates of interest, <code class="docutils literal notranslate"><span class="pre">field</span></code> is the field vector (e.g. an eigenmode), and <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is the finite element mesh on which <code class="docutils literal notranslate"><span class="pre">field</span></code> was computed.</p>
+</section>
+<section id="fesolver-basics-vector">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">3. <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code> basics - vector</a><a class="headerlink" href="#fesolver-basics-vector" title="Link to this heading">#</a></h2>
+<p>Vectorial mode solving is a requirement for high-index-contrast waveguides. To solve for the vector modes, we can use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">eigvals</span><span class="p">,</span> <span class="n">eigvecs</span> <span class="o">=</span> <span class="n">FEsolver</span><span class="o">.</span><span class="n">solve_waveguide_vec</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The syntax is similar to the scalar <code class="docutils literal notranslate"><span class="pre">solve_waveguide()</span></code>. However, there is an important difference. The vectorial solver is only implemented for meshes of linear triangular elements (order 1) whereas the default mesh generation and scalar solver assume order 2. We need to specify this when generating the mesh: <code class="docutils literal notranslate"><span class="pre">mesh</span> <span class="pre">=</span> <span class="pre">Waveguide.make_mesh(order=1)</span></code>.</p>
+<p>As an example, I will solve for the vector modes of the same 3-mode step index circular fiber. First, let’s generate an order 1 mesh.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mesh_ord1</span> <span class="o">=</span> <span class="n">fiber</span><span class="o">.</span><span class="n">make_mesh</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># plot the mesh</span>
+<span class="n">fiber</span><span class="o">.</span><span class="n">plot_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">=</span><span class="n">mesh_ord1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/9cf38c7f27637253f77e3b07cf13d247/quickstart-6.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/ee638ae0d160b6925910396a2b0a3101/quickstart-6.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/ae70ecdab04c0c5fae7e2ae292f20f45/quickstart-6.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/1f57eec69a42b0f69faaaca5f708e720/quickstart-6.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/quickstart-6.png" class="plot-directive" src="_images/quickstart-6.png" />
+</figure>
+<p>The triangles in this mesh have only 3 points, corresponding to vertices (order 2 triangular elements also have edge midpoints).</p>
+<p>Next, we’ll use <code class="docutils literal notranslate"><span class="pre">solve_waveguide_vec()</span></code> to get the modes. Since the fiber supports 3 LP modes, we expect 6 vector modes. To confirm this, let’s solve for the 7 modes with the highest eigenvalues, using the <code class="docutils literal notranslate"><span class="pre">Nmax</span></code> optional argument.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wavesolve.FEsolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_waveguide_vec</span>
+<span class="c1"># default Nmax is 6</span>
+<span class="n">eigvals_ord1</span><span class="p">,</span><span class="n">eigvecs_ord1</span> <span class="o">=</span> <span class="n">solve_waveguide_vec</span><span class="p">(</span><span class="n">mesh_ord1</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">,</span><span class="n">Nmax</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/96b247333a383e3a3afc9031efa1ad12/quickstart-7.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>)</p>
+<p>To plot, we can use <code class="docutils literal notranslate"><span class="pre">plot_vector_field(mesh,field)</span></code>, which has similar syntax to <code class="docutils literal notranslate"><span class="pre">plot_scalar_field()</span></code>. First we’ll plot the guided modes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wavesolve.FEsolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_vector_field</span>
+
+<span class="n">fig</span><span class="p">,</span><span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+    <span class="n">plot_vector_field</span><span class="p">(</span><span class="n">mesh_ord1</span><span class="p">,</span><span class="n">eigvecs_ord1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/d794e38a5f0967ec45a2269107b14972/quickstart-8.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/10775056a32f9c8241156da46c440415/quickstart-8.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/06ceb17e0547bc06dfa33f29dc7d2c99/quickstart-8.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/903c4216abbe912ca4eaf51bd35f62a8/quickstart-8.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/quickstart-8.png" class="plot-directive" src="_images/quickstart-8.png" />
+</figure>
+<p>In this case, we pass in premade <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> axes, and the function plots the transverse field component. The first two modes are the HE<sub>11</sub> modes. The next four modes are linear combinations of the TE<sub>01</sub>, TM<sub>01</sub>, and HE<sub>21</sub> modes, which have the same effective index.</p>
+<p>Without providing an axis, the default plotting behavior is to show <em>both</em> the transverse and longitudinal components. E.g. for the first HE<sub>11</sub> mode:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_vector_field</span><span class="p">(</span><span class="n">mesh_ord1</span><span class="p">,</span><span class="n">eigvecs_ord1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/0105aefa6c0355154b28610e536c26c9/quickstart-9.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/f96b7ec6c80b048180f8f15e9f3d7003/quickstart-9.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/c4ed8d1c39ba22789915fb533629e135/quickstart-9.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/c0415a0a69ca1e51c0ccdf2dc2b1fa80/quickstart-9.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/quickstart-9.png" class="plot-directive" src="_images/quickstart-9.png" />
+</figure>
+<p>The amplitude of the longitudinal field is quite small, which expected considering the weak index contrast of this waveguide. Let’s also look at mode 7, which I claimed was spurious.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_vector_field</span><span class="p">(</span><span class="n">mesh_ord1</span><span class="p">,</span><span class="n">eigvecs_ord1</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span><span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/a799cb3b70b672e1f49b3e4b8cc9713c/quickstart-10.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/8450c529f6718e0911694cf4ca32dcde/quickstart-10.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/8b0515bc30a8705be64ab0c017fb3d30/quickstart-10.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/fd178292c4e9f65d6514ee22653ec20c/quickstart-10.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/quickstart-10.png" class="plot-directive" src="_images/quickstart-10.png" />
+</figure>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In the vectorial case, distinguishing between spurious and non-spurious modes becomes more difficult. In general, <code class="docutils literal notranslate"><span class="pre">FEsolver.count_modes</span></code> <strong>will not work</strong> for vector modes. It will only work when index contrast is weak (such as in this <code class="docutils literal notranslate"><span class="pre">fiber</span></code> example). In other cases, use the eye test!</p>
+</div>
+<p>Finally, to evaluate a vector-valued field, use the same function as in the scalar case:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_amp_xy</span><span class="p">,</span> <span class="n">field_amp_z</span> <span class="o">=</span> <span class="n">FEsolver</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">point</span><span class="p">,</span><span class="n">field</span><span class="p">,</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">field_amp_xy</span></code> is the vector-valued transverse component of <code class="docutils literal notranslate"><span class="pre">field</span></code> at <code class="docutils literal notranslate"><span class="pre">point</span></code>, and <code class="docutils literal notranslate"><span class="pre">field_amp_z</span></code> is the scalar longitudinal component.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="examples.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#waveguide-basics">1. <code class="docutils literal notranslate"><span class="pre">waveguide</span></code> basics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fesolver-basics-scalar">2. <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code> basics - scalar</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fesolver-basics-vector">3. <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code> basics - vector</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Jon Lin
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

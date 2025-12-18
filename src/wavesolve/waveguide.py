@@ -472,6 +472,14 @@ class Waveguide:
     vectorized_transform = False
 
     def __init__(self,prim2Dgroups):
+        """ initialize a Waveguide object
+
+        ARGS:
+            prim2Dgroups: a (potentially) nested list of Prim2D objects. Later
+                          elements overwrite earlier ones, in terms
+                          of refractive index.
+        """
+
         self.prim2Dgroups = prim2Dgroups # an arrangement of Prim2D objects, stored as a (potentially nested) list. each element is overwritten by the next.
         self.IOR_dict = {}
         
@@ -486,7 +494,13 @@ class Waveguide:
         self.primsflat = primsflat
 
     def make_mesh(self,algo=6,order=2,adaptive=True):
-        """ construct a mesh with boundary refinement at material interfaces."""
+        """ Construct a mesh with boundary refinement at material interfaces
+
+        ARGS:
+            algo (int): Gmsh algorithm, values 1-7
+            order (int): finite element mesh order. 1 -> linear triangle elements, 2 (default) -> quadratic triangle elements
+            adaptive (bool): whether to adaptively vary mesh triangle size, default True.
+        """
 
         _scale = self.mesh_dist_scale
         _power = self.mesh_dist_power
@@ -542,14 +556,15 @@ class Waveguide:
             return mesh
         
     def compute_mesh_size(self,x,y,_scale=1.,_power=1.,min_size=None,max_size=None):
-        """ compute a target mesh size (triangle side length) at the point (x,y). 
+        """ compute a target mesh size (triangle side length) at the point (x,y)
+
         ARGS:
-            x: x point to compute mesh size at
-            y: y point to compute mesh size at
-            _scale: a factor that determines how quickly mesh size should increase away from primitive boundaries. higher = more quickly.
-            _power: another factor that determines how mesh size increases away from boundaries. default = 1 (linear increase). higher = more quickly.
-            min_size: the minimum mesh size that the algorithm can choose
-            max_size: the maximum mesh size that the algorithm can chooose
+            x (float): x point to compute mesh size at
+            y (float): y point to compute mesh size at
+            _scale (float): a factor that determines how quickly mesh size should increase away from primitive boundaries. higher = more quickly.
+            _power (float): another factor that determines how mesh size increases away from boundaries. default = 1 (linear increase). higher = more quickly.
+            min_size (float): the minimum mesh size that the algorithm can choose
+            max_size (float): the maximum mesh size that the algorithm can chooose
         """
         
         prims = self.primsflat
@@ -580,8 +595,8 @@ class Waveguide:
         return target_size
 
     def assign_IOR(self):
-        """ build a dictionary which maps all material labels in the Waveguide mesh
-            to the corresponding refractive index value """
+        """ returns a dictionary which maps all material labels in the Waveguide mesh
+            to the corresponding refractive index value. """
         for p in self.prim2Dgroups:
             if type(p) == list:
                 for _p in p:
@@ -598,8 +613,12 @@ class Waveguide:
         """ plot a mesh and associated refractive index distribution
 
         ARGS:
-            mesh: the mesh to be plotted. if None, we auto-compute a mesh using default values
-            IOR_dict: dictionary that assigns each named region in the mesh to a refractive index value
+            mesh: the finite element mesh to be plotted. if None, one is made with make_mesh()
+            IOR_dict (dict or None): dictionary that assigns each named region in the mesh to a refractive index value. 
+                                     if None, one is made automatically.
+            alpha (float): opacity of mesh lines
+            ax (matplotlib.axes or None): matplotlib axis to plot on; if None, one will be made
+            plot_points (bool): plot the mesh triangle points (vertices, and midpoints if order 2)
         """
         if mesh is None:
             mesh = self.make_mesh()
@@ -617,14 +636,13 @@ class Waveguide:
             prim.plot_boundary(ax,color,lw,alpha)
 
     def plot_boundaries(self,ax=None,color='red',lw=1,alpha=1):
-        """ plot the boundaries of all prim2Dgroups. For unioned primitives, all boundaries of 
-            the original parts of the union are plotted in a translucent color. 
-        
+        """ plot the boundaries of all prim2Dgroups
+
         ARGS:
-            ax: matplotlib axis, optional
-            color: plotline color, default "red"
-            lw: linewidth, default 1
-            alpha: opacity, default 1
+            ax (matplotlib.axes or None): matplotlib axis to plot on; if None, one will be made
+            color (str): plotline color, default "red"
+            lw (float): linewidth, default 1
+            alpha (float): opacity, default 1
         """
         
         show=False
@@ -640,9 +658,8 @@ class Waveguide:
             plt.show()
     
 class CircularFiber(Waveguide):
-    """ circular step-index fiber """
     def __init__(self,rcore,rclad,ncore,nclad,core_res,clad_res=None,core_mesh_size=None,clad_mesh_size=None):
-        """
+        """ Make a circular step-index optical fiber
         ARGS
             rcore: radius of core
             rclad: radius of cladding
@@ -663,9 +680,8 @@ class CircularFiber(Waveguide):
         super().__init__([cladding,core])
 
 class EllipticalFiber(Waveguide):
-    """ axis-aligned elliptical core step-index fiber """
     def __init__(self,acore,bcore,rclad,ncore,nclad,core_res,clad_res=None,core_mesh_size=None,clad_mesh_size=None):
-        """ 
+        """ make an axis-aligned elliptical core step-index fiber
         ARGS
             acore: extent of elliptical core along x (the "x" radius)
             bcore: extent of elliptical core along y (the "y" radius)

@@ -1,0 +1,44 @@
+# Configuration file for the Sphinx documentation builder.
+#
+# For the full list of built-in configuration values, see the documentation:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+project = 'wavesolve'
+release = '0.0.1'
+author = 'Jon Lin'
+
+
+# -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+
+extensions = ['sphinx.ext.autodoc','sphinx.ext.doctest','matplotlib.sphinxext.plot_directive','sphinx.ext.napoleon','sphinx.ext.githubpages','sphinx_copybutton']
+
+templates_path = ['_templates']
+exclude_patterns = []
+plot_include_source = True
+doctest_global_setup = '''
+skip_tests = False
+'''
+# -- Options for HTML output -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+
+html_theme = 'sphinx_book_theme'
+html_theme_options = {
+    "repository_url": "https://github.com/jw-lin/wavesolve/tree/julia",
+    "use_repository_button": True,
+    "use_edit_page_button": True,
+    "path_to_docs": "docs_source/",
+    "repository_branch": "package"
+}
+
+copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
+copybutton_only_copy_prompt_lines = True
+autodoc_class_signature = "separated"

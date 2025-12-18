@@ -1,0 +1,1131 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>wavesolve.waveguide &#8212; wavesolve 0.0.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css?v=7f9a90b1" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=e645c8fa"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=30646c52"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'wavesolve.waveguide';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="wavesolve.FEsolver" href="wavesolve.FEsolver.html" />
+    <link rel="prev" title="Reference" href="reference.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">wavesolve 0.0.1 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="PL3.html">1. 3-port photonic lantern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ellip.html">2. Elliptical core fiber</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hollowPCF.html">3. Hollow core photonic crystal fiber</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced usage</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="reference.html">Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">wavesolve.waveguide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wavesolve.FEsolver.html">wavesolve.FEsolver</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/jw-lin/wavesolve/tree/julia" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/jw-lin/wavesolve/tree/julia/edit/package/docs_source/wavesolve.waveguide.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/wavesolve.waveguide.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>wavesolve.waveguide</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#waveguide-class">Waveguide class</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide"><code class="docutils literal notranslate"><span class="pre">Waveguide</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.__init__"><code class="docutils literal notranslate"><span class="pre">Waveguide.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.assign_IOR"><code class="docutils literal notranslate"><span class="pre">Waveguide.assign_IOR()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.compute_mesh_size"><code class="docutils literal notranslate"><span class="pre">Waveguide.compute_mesh_size()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.make_mesh"><code class="docutils literal notranslate"><span class="pre">Waveguide.make_mesh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.plot_boundaries"><code class="docutils literal notranslate"><span class="pre">Waveguide.plot_boundaries()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.plot_mesh"><code class="docutils literal notranslate"><span class="pre">Waveguide.plot_mesh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.max_mesh_size"><code class="docutils literal notranslate"><span class="pre">Waveguide.max_mesh_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.mesh_dist_power"><code class="docutils literal notranslate"><span class="pre">Waveguide.mesh_dist_power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.mesh_dist_scale"><code class="docutils literal notranslate"><span class="pre">Waveguide.mesh_dist_scale</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.min_mesh_size"><code class="docutils literal notranslate"><span class="pre">Waveguide.min_mesh_size</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes-that-inherit-from-waveguide">classes that inherit from <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.CircularFiber"><code class="docutils literal notranslate"><span class="pre">CircularFiber</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.CircularFiber.__init__"><code class="docutils literal notranslate"><span class="pre">CircularFiber.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.EllipticalFiber"><code class="docutils literal notranslate"><span class="pre">EllipticalFiber</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.EllipticalFiber.__init__"><code class="docutils literal notranslate"><span class="pre">EllipticalFiber.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.PhotonicCrystalFiber"><code class="docutils literal notranslate"><span class="pre">PhotonicCrystalFiber</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.PhotonicCrystalFiber.__init__"><code class="docutils literal notranslate"><span class="pre">PhotonicCrystalFiber.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.PhotonicBandgapFiber"><code class="docutils literal notranslate"><span class="pre">PhotonicBandgapFiber</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.PhotonicBandgapFiber.__init__"><code class="docutils literal notranslate"><span class="pre">PhotonicBandgapFiber.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.FiberBundleLantern"><code class="docutils literal notranslate"><span class="pre">FiberBundleLantern</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.FiberBundleLantern.__init__"><code class="docutils literal notranslate"><span class="pre">FiberBundleLantern.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.MCFPhotonicLantern"><code class="docutils literal notranslate"><span class="pre">MCFPhotonicLantern</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.MCFPhotonicLantern.__init__"><code class="docutils literal notranslate"><span class="pre">MCFPhotonicLantern.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prim2d-class">Prim2D class</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D"><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.__init__"><code class="docutils literal notranslate"><span class="pre">Prim2D.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.boundary_dist"><code class="docutils literal notranslate"><span class="pre">Prim2D.boundary_dist()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.make_points"><code class="docutils literal notranslate"><span class="pre">Prim2D.make_points()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.make_poly"><code class="docutils literal notranslate"><span class="pre">Prim2D.make_poly()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.plot_boundary"><code class="docutils literal notranslate"><span class="pre">Prim2D.plot_boundary()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.plot_mesh"><code class="docutils literal notranslate"><span class="pre">Prim2D.plot_mesh()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes-that-inherit-from-prim2d">classes that inherit from <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Circle"><code class="docutils literal notranslate"><span class="pre">Circle</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Circle.make_points"><code class="docutils literal notranslate"><span class="pre">Circle.make_points()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Ellipse"><code class="docutils literal notranslate"><span class="pre">Ellipse</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Ellipse.make_points"><code class="docutils literal notranslate"><span class="pre">Ellipse.make_points()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Rectangle"><code class="docutils literal notranslate"><span class="pre">Rectangle</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Rectangle.make_points"><code class="docutils literal notranslate"><span class="pre">Rectangle.make_points()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2DUnion"><code class="docutils literal notranslate"><span class="pre">Prim2DUnion</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2DUnion.__init__"><code class="docutils literal notranslate"><span class="pre">Prim2DUnion.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2DArray"><code class="docutils literal notranslate"><span class="pre">Prim2DArray</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2DArray.__init__"><code class="docutils literal notranslate"><span class="pre">Prim2DArray.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="wavesolve-waveguide">
+<h1>wavesolve.waveguide<a class="headerlink" href="#wavesolve-waveguide" title="Link to this heading">#</a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#waveguide-class" id="id1">Waveguide class</a></p></li>
+<li><p><a class="reference internal" href="#prim2d-class" id="id2">Prim2D class</a></p></li>
+</ul>
+</nav>
+<p>This page contains the documentation for the <code class="docutils literal notranslate"><span class="pre">waveguide</span></code> submodule, which functionally defines different kinds of waveguides, enables the creation of custom waveguides, and handles mesh generation for finite element analysis.</p>
+<section id="waveguide-class">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Waveguide class</a><a class="headerlink" href="#waveguide-class" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">Waveguide</span></span><a class="headerlink" href="#wavesolve.waveguide.Waveguide" title="Link to this definition">#</a></dt>
+<dd><p>a Waveguide is a collection of prim2Dgroups, organized into layers. the refractive index
+of earlier layers is overwritten by later layers.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prim2Dgroups</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.__init__" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prim2Dgroups</strong> – a (potentially) nested list of Prim2D objects. Later
+elements overwrite earlier ones, in terms
+of refractive index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.assign_IOR">
+<span class="sig-name descname"><span class="pre">assign_IOR</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.assign_IOR" title="Link to this definition">#</a></dt>
+<dd><p>returns a dictionary which maps all material labels in the Waveguide mesh
+to the corresponding refractive index value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.compute_mesh_size">
+<span class="sig-name descname"><span class="pre">compute_mesh_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.compute_mesh_size" title="Link to this definition">#</a></dt>
+<dd><p>compute a target mesh size (triangle side length) at the point (x,y)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – x point to compute mesh size at</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – y point to compute mesh size at</p></li>
+<li><p><strong>_scale</strong> (<em>float</em>) – a factor that determines how quickly mesh size should increase away from primitive boundaries. higher = more quickly.</p></li>
+<li><p><strong>_power</strong> (<em>float</em>) – another factor that determines how mesh size increases away from boundaries. default = 1 (linear increase). higher = more quickly.</p></li>
+<li><p><strong>min_size</strong> (<em>float</em>) – the minimum mesh size that the algorithm can choose</p></li>
+<li><p><strong>max_size</strong> (<em>float</em>) – the maximum mesh size that the algorithm can chooose</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.make_mesh">
+<span class="sig-name descname"><span class="pre">make_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.make_mesh" title="Link to this definition">#</a></dt>
+<dd><p>Construct a mesh with boundary refinement at material interfaces</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>algo</strong> (<em>int</em>) – Gmsh algorithm, values 1-7</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – finite element mesh order. 1 -&gt; linear triangle elements, 2 (default) -&gt; quadratic triangle elements</p></li>
+<li><p><strong>adaptive</strong> (<em>bool</em>) – whether to adaptively vary mesh triangle size, default True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.plot_boundaries">
+<span class="sig-name descname"><span class="pre">plot_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.plot_boundaries" title="Link to this definition">#</a></dt>
+<dd><p>plot the boundaries of all prim2Dgroups</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.axes</em><em> or </em><em>None</em>) – matplotlib axis to plot on; if None, one will be made</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – plotline color, default “red”</p></li>
+<li><p><strong>lw</strong> (<em>float</em>) – linewidth, default 1</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – opacity, default 1</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.plot_mesh">
+<span class="sig-name descname"><span class="pre">plot_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IOR_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.plot_mesh" title="Link to this definition">#</a></dt>
+<dd><p>plot a mesh and associated refractive index distribution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> – the finite element mesh to be plotted. if None, one is made with make_mesh()</p></li>
+<li><p><strong>IOR_dict</strong> (<em>dict</em><em> or </em><em>None</em>) – dictionary that assigns each named region in the mesh to a refractive index value.
+if None, one is made automatically.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – opacity of mesh lines</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes</em><em> or </em><em>None</em>) – matplotlib axis to plot on; if None, one will be made</p></li>
+<li><p><strong>plot_points</strong> (<em>bool</em>) – plot the mesh triangle points (vertices, and midpoints if order 2)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.max_mesh_size">
+<span class="sig-name descname"><span class="pre">max_mesh_size</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10.0</span></span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.max_mesh_size" title="Link to this definition">#</a></dt>
+<dd><p>maximum allowed mesh size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.mesh_dist_power">
+<span class="sig-name descname"><span class="pre">mesh_dist_power</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.mesh_dist_power" title="Link to this definition">#</a></dt>
+<dd><p>mesh boundary refinement power scaling</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.mesh_dist_scale">
+<span class="sig-name descname"><span class="pre">mesh_dist_scale</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.25</span></span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.mesh_dist_scale" title="Link to this definition">#</a></dt>
+<dd><p>mesh boundary refinement linear distance scaling</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.min_mesh_size">
+<span class="sig-name descname"><span class="pre">min_mesh_size</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.1</span></span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.min_mesh_size" title="Link to this definition">#</a></dt>
+<dd><p>minimum allowed mesh size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="classes-that-inherit-from-waveguide">
+<h3>classes that inherit from <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code><a class="headerlink" href="#classes-that-inherit-from-waveguide" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.CircularFiber">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">CircularFiber</span></span><a class="headerlink" href="#wavesolve.waveguide.CircularFiber" title="Link to this definition">#</a></dt>
+<dd><p>a circular step-index optical fiber</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.CircularFiber.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rcore</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rclad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncore</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nclad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.CircularFiber.__init__" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcore</strong> (<em>float</em>) – radius of core</p></li>
+<li><p><strong>rclad</strong> (<em>float</em>) – radius of cladding</p></li>
+<li><p><strong>ncore</strong> (<em>float</em>) – core index</p></li>
+<li><p><strong>nclad</strong> (<em>float</em>) – cladding index</p></li>
+<li><p><strong>core_res</strong> (<em>int</em>) – number of line segments to divide the core boundary into</p></li>
+<li><p><strong>clad_res</strong> (<em>int</em>) – number of line segments to divide the cladding boundary into, default core_res/2</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.EllipticalFiber">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">EllipticalFiber</span></span><a class="headerlink" href="#wavesolve.waveguide.EllipticalFiber" title="Link to this definition">#</a></dt>
+<dd><p>an axis-aligned elliptical core step-index fiber</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.EllipticalFiber.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acore</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bcore</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rclad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncore</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nclad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.EllipticalFiber.__init__" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>acore</strong> (<em>float</em>) – extent of elliptical core along x (the “x” radius)</p></li>
+<li><p><strong>bcore</strong> (<em>float</em>) – extent of elliptical core along y (the “y” radius)</p></li>
+<li><p><strong>rclad</strong> (<em>float</em>) – radius of cladding, assumed circular</p></li>
+<li><p><strong>ncore</strong> (<em>float</em>) – core index</p></li>
+<li><p><strong>nclad</strong> (<em>float</em>) – cladding index</p></li>
+<li><p><strong>core_res</strong> (<em>int</em>) – number of line segments to divide the core boundary into</p></li>
+<li><p><strong>clad_res</strong> (<em>int</em>) – number of line segments to divide the cladding boundary into, default core_res/2</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.PhotonicCrystalFiber">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">PhotonicCrystalFiber</span></span><a class="headerlink" href="#wavesolve.waveguide.PhotonicCrystalFiber" title="Link to this definition">#</a></dt>
+<dd><p>an optical fiber filled with a hexagonal pattern of air holes, except at the center. must be solved with vector solver.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.PhotonicCrystalFiber.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rhole</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rclad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nclad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hole_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hole_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nhole</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.PhotonicCrystalFiber.__init__" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rhole</strong> (<em>float</em>) – the radius of each air hole perforating the fiber</p></li>
+<li><p><strong>rclad</strong> (<em>float</em>) – the outer cladding radius of the fiber</p></li>
+<li><p><strong>nclad</strong> (<em>float</em>) – the index of the cladding material</p></li>
+<li><p><strong>spacing</strong> (<em>float</em>) – the physical spacing between holes</p></li>
+<li><p><strong>hole_res</strong> (<em>int</em>) – the # of line segments used to resolve each hole boundary</p></li>
+<li><p><strong>clad_res</strong> (<em>int</em>) – the # of line segments used to resolve the outer cladding boundary</p></li>
+<li><p><strong>hole_mesh_size</strong> (<em>float</em>) – target mesh size inside holes</p></li>
+<li><p><strong>clad_mesh_size</strong> (<em>float</em>) – target mesh size inside cladding, but outside holes</p></li>
+<li><p><strong>nhole</strong> (<em>float</em>) – index of the holes, default 1.</p></li>
+<li><p><strong>rcore</strong> (<em>float</em>) – the “core radius” of the fiber. holes whose centers are within this radius from the origin are not generated. default 0 (no central hole).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.PhotonicBandgapFiber">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">PhotonicBandgapFiber</span></span><a class="headerlink" href="#wavesolve.waveguide.PhotonicBandgapFiber" title="Link to this definition">#</a></dt>
+<dd><p>an optical fiber filled with a hexagonal pattern of air holes, except at the center. must be solved with vector solver.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.PhotonicBandgapFiber.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rvoid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhole</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rclad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nclad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hole_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hole_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nhole</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.PhotonicBandgapFiber.__init__" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rvoid</strong> (<em>float</em>) – the radius of the central air hole</p></li>
+<li><p><strong>rhole</strong> (<em>float</em>) – the radius of the cladding air holes perforating the fiber</p></li>
+<li><p><strong>rclad</strong> (<em>float</em>) – the outer cladding radius of the fiber</p></li>
+<li><p><strong>nclad</strong> (<em>float</em>) – the index of the cladding material</p></li>
+<li><p><strong>spacing</strong> (<em>float</em>) – the physical spacing between holes</p></li>
+<li><p><strong>hole_res</strong> (<em>int</em>) – the # of line segments used to resolve each hole boundary</p></li>
+<li><p><strong>clad_res</strong> (<em>int</em>) – the # of line segments used to resolve the outer cladding boundary</p></li>
+<li><p><strong>hole_mesh_size</strong> (<em>float</em>) – target mesh size inside holes</p></li>
+<li><p><strong>clad_mesh_size</strong> (<em>float</em>) – target mesh size inside cladding, but outside holes</p></li>
+<li><p><strong>nhole</strong> (<em>float</em>) – index of the holes, default 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.FiberBundleLantern">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">FiberBundleLantern</span></span><a class="headerlink" href="#wavesolve.waveguide.FiberBundleLantern" title="Link to this definition">#</a></dt>
+<dd><p>Photonic lantern with hexagonal arrangement of individual fibers - WaveSolve compatible</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.FiberBundleLantern.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_jack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_fiber_clad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_core</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_rings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_core</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_clad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jack_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_target_mmcore_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_clad_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ring_clad_factors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.FiberBundleLantern.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialize hexagonal fiber bundle photonic lantern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r_jack</strong> – jacket radius</p></li>
+<li><p><strong>r_fiber_clad</strong> – individual fiber cladding radius</p></li>
+<li><p><strong>r_core</strong> – core radius (final size after taper)</p></li>
+<li><p><strong>n_rings</strong> – number of hexagonal rings</p></li>
+<li><p><strong>n_core</strong> – core refractive index</p></li>
+<li><p><strong>n_clad</strong> – cladding refractive index</p></li>
+<li><p><strong>core_res</strong> – resolution for each core circle</p></li>
+<li><p><strong>clad_res</strong> – resolution for each fiber cladding circle</p></li>
+<li><p><strong>jack_res</strong> – resolution for jacket circle (default clad_res/2)</p></li>
+<li><p><strong>spacing_factor</strong> – multiplier for fiber spacing (center-to-center)</p></li>
+<li><p><strong>include_center</strong> – whether to include center fiber</p></li>
+<li><p><strong>taper_ratio</strong> – scaling factor (initial_size/final_size)</p></li>
+<li><p><strong>r_target_mmcore_size</strong> – desired MM core size. Will override taper ratio.</p></li>
+<li><p><strong>core_mesh_size</strong> – target mesh size in cores</p></li>
+<li><p><strong>clad_mesh_size</strong> – target mesh size in cladding</p></li>
+<li><p><strong>n_jack</strong> – jacket refractive index (default same as cladding)</p></li>
+<li><p><strong>center_clad_factor</strong> – factor to enlarge center fiber cladding (simulates fusing)</p></li>
+<li><p><strong>ring_clad_factors</strong> – list/dict of cladding scaling factors for each ring
+Can be:
+- list: [ring0_factor, ring1_factor, ring2_factor, …]
+- dict: {0: ring0_factor, 1: ring1_factor, …}
+- None: use center_clad_factor for ring 0, 1.0 for others</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.MCFPhotonicLantern">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">MCFPhotonicLantern</span></span><a class="headerlink" href="#wavesolve.waveguide.MCFPhotonicLantern" title="Link to this definition">#</a></dt>
+<dd><p>Photonic lantern with hexagonal grid of core, i.e. MCF based lantern.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.MCFPhotonicLantern.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_jack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_clad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_core</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_rings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_core</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_clad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jack_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_target_cladding_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clad_mesh_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.MCFPhotonicLantern.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialize MCF photonic lantern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r_jack</strong> – jacket radius</p></li>
+<li><p><strong>r_clad</strong> – cladding radius of MCF</p></li>
+<li><p><strong>r_core</strong> – core radius (final size after taper)</p></li>
+<li><p><strong>n_rings</strong> – number of hexagonal rings</p></li>
+<li><p><strong>n_core</strong> – core refractive index</p></li>
+<li><p><strong>n_clad</strong> – cladding refractive index</p></li>
+<li><p><strong>core_res</strong> – resolution for each core circle</p></li>
+<li><p><strong>clad_res</strong> – resolution for cladding circle</p></li>
+<li><p><strong>jack_res</strong> – resolution for jacket circle (default clad_res/2)</p></li>
+<li><p><strong>spacing_factor</strong> – multiplier for core spacing</p></li>
+<li><p><strong>include_center</strong> – whether to include center core</p></li>
+<li><p><strong>taper_ratio</strong> – scaling factor (initial_size/final_size)</p></li>
+<li><p><strong>r_target_cladding_size</strong> – desired MM core size. Will overide taper ratio.</p></li>
+<li><p><strong>core_mesh_size</strong> – target mesh size in cores</p></li>
+<li><p><strong>clad_mesh_size</strong> – target mesh size in cladding</p></li>
+<li><p><strong>n_jack</strong> – jacket refractive index (default same as cladding)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="prim2d-class">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Prim2D class</a><a class="headerlink" href="#prim2d-class" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">Prim2D</span></span><a class="headerlink" href="#wavesolve.waveguide.Prim2D" title="Link to this definition">#</a></dt>
+<dd><p>a Prim2D (2D primitive) is an an array of N (x,y) points, shape (N,2), that denote a closed curve (so, a polygon).
+inside the closed curve, the primitive has refractive index n.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.__init__" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>float</em>) – refractive index</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – a bookkeeping label to attach to this object (e.g. “core”)</p></li>
+<li><p><strong>points</strong> – a list or array of [x,y] points corresponding to the shape’s boundary</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.boundary_dist">
+<span class="sig-name descname"><span class="pre">boundary_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.boundary_dist" title="Link to this definition">#</a></dt>
+<dd><p>compute the signed distance between the point (x,y) and the boundary of the primitive.
+negative distances -&gt; inside the boundary, while positive -&gt; outside.
+note that this doesn’t need to be exact. the “distance” just needs to be positive outside the boundary,
+negative inside the boundary, and go to 0 as you approach the boundary.
+this is a placeholder - subclasses should implement this function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.make_points">
+<span class="sig-name descname"><span class="pre">make_points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.make_points" title="Link to this definition">#</a></dt>
+<dd><p>make an Nx2 array of points for marking the primitive boundary,
+according to some args. CCW ordering! this is a placeholder;
+subclasses should implement this function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.make_poly">
+<span class="sig-name descname"><span class="pre">make_poly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geom</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.make_poly" title="Link to this definition">#</a></dt>
+<dd><p>convert self.points into a Gmsh polygon</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>geom</strong> – pygmsh geometry kernel</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.plot_boundary">
+<span class="sig-name descname"><span class="pre">plot_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.plot_boundary" title="Link to this definition">#</a></dt>
+<dd><p>plot the boundary of the primitive</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.axes</em>) – matplotlib axis to plot on; if None, one will be made.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – linecolor of the boundary</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – line opacity</p></li>
+<li><p><strong>lw</strong> (<em>float</em>) – line width</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.plot_mesh">
+<span class="sig-name descname"><span class="pre">plot_mesh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.plot_mesh" title="Link to this definition">#</a></dt>
+<dd><p>plot a mesh corresponding to this primitive. useful for quickly checking the shape.</p>
+</dd></dl>
+
+</dd></dl>
+
+<section id="classes-that-inherit-from-prim2d">
+<h3>classes that inherit from <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code><a class="headerlink" href="#classes-that-inherit-from-prim2d" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Circle">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">Circle</span></span><a class="headerlink" href="#wavesolve.waveguide.Circle" title="Link to this definition">#</a></dt>
+<dd><p>a (discretized) Circle primitive, defined by radius, center, and number of sides</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Circle.make_points">
+<span class="sig-name descname"><span class="pre">make_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Circle.make_points" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> (<em>float</em>) – circle radius</p></li>
+<li><p><strong>res</strong> (<em>int</em>) – number of line segments with which to discretize the circle</p></li>
+<li><p><strong>center</strong> – (x,y) coordinates of the circle center</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Ellipse">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">Ellipse</span></span><a class="headerlink" href="#wavesolve.waveguide.Ellipse" title="Link to this definition">#</a></dt>
+<dd><p>axis-aligned ellipse. a is the semi-axis along x, b is the semi-axis along y.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Ellipse.make_points">
+<span class="sig-name descname"><span class="pre">make_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Ellipse.make_points" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – semimajor axis</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – semiminor axis</p></li>
+<li><p><strong>res</strong> (<em>int</em>) – number of line segments with which to discretize the ellipse</p></li>
+<li><p><strong>center</strong> – (x,y) coordinates of the circle center</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Rectangle">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">Rectangle</span></span><a class="headerlink" href="#wavesolve.waveguide.Rectangle" title="Link to this definition">#</a></dt>
+<dd><p>rectangle primitive, defined by corner pounts.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Rectangle.make_points">
+<span class="sig-name descname"><span class="pre">make_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Rectangle.make_points" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xmin</strong> (<em>float</em>) – minimum x coordinate of the rectangle</p></li>
+<li><p><strong>xmax</strong> (<em>float</em>) – maximum x coordinate</p></li>
+<li><p><strong>ymin</strong> (<em>float</em>) – minimum y coordinate</p></li>
+<li><p><strong>ymax</strong> (<em>float</em>) – maximum y coordinate</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2DUnion">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">Prim2DUnion</span></span><a class="headerlink" href="#wavesolve.waveguide.Prim2DUnion" title="Link to this definition">#</a></dt>
+<dd><p>a union of Prim2Ds</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2DUnion.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wavesolve.waveguide.Prim2D" title="wavesolve.waveguide.Prim2D"><span class="pre">Prim2D</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2DUnion.__init__" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ps</strong> (<em>list</em><em>[</em><a class="reference internal" href="#wavesolve.waveguide.Prim2D" title="wavesolve.waveguide.Prim2D"><em>Prim2D</em></a><em>]</em>) – a list of Prim2D objects to boolean union</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – a bookkeeping label to attach to this object (e.g. “core”)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2DArray">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">Prim2DArray</span></span><a class="headerlink" href="#wavesolve.waveguide.Prim2DArray" title="Link to this definition">#</a></dt>
+<dd><p>an array of identical non-intersecting Prim2Ds copied at different locations</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2DArray.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wavesolve.waveguide.Prim2D" title="wavesolve.waveguide.Prim2D"><span class="pre">Prim2D</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2DArray.__init__" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ps</strong> (<em>list</em><em>[</em><a class="reference internal" href="#wavesolve.waveguide.Prim2D" title="wavesolve.waveguide.Prim2D"><em>Prim2D</em></a><em>]</em>) – a list of Prim2D objects</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – a bookkeeping label to attach to this object (e.g. “core”)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="reference.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Reference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="wavesolve.FEsolver.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">wavesolve.FEsolver</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#waveguide-class">Waveguide class</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide"><code class="docutils literal notranslate"><span class="pre">Waveguide</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.__init__"><code class="docutils literal notranslate"><span class="pre">Waveguide.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.assign_IOR"><code class="docutils literal notranslate"><span class="pre">Waveguide.assign_IOR()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.compute_mesh_size"><code class="docutils literal notranslate"><span class="pre">Waveguide.compute_mesh_size()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.make_mesh"><code class="docutils literal notranslate"><span class="pre">Waveguide.make_mesh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.plot_boundaries"><code class="docutils literal notranslate"><span class="pre">Waveguide.plot_boundaries()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.plot_mesh"><code class="docutils literal notranslate"><span class="pre">Waveguide.plot_mesh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.max_mesh_size"><code class="docutils literal notranslate"><span class="pre">Waveguide.max_mesh_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.mesh_dist_power"><code class="docutils literal notranslate"><span class="pre">Waveguide.mesh_dist_power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.mesh_dist_scale"><code class="docutils literal notranslate"><span class="pre">Waveguide.mesh_dist_scale</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Waveguide.min_mesh_size"><code class="docutils literal notranslate"><span class="pre">Waveguide.min_mesh_size</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes-that-inherit-from-waveguide">classes that inherit from <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.CircularFiber"><code class="docutils literal notranslate"><span class="pre">CircularFiber</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.CircularFiber.__init__"><code class="docutils literal notranslate"><span class="pre">CircularFiber.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.EllipticalFiber"><code class="docutils literal notranslate"><span class="pre">EllipticalFiber</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.EllipticalFiber.__init__"><code class="docutils literal notranslate"><span class="pre">EllipticalFiber.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.PhotonicCrystalFiber"><code class="docutils literal notranslate"><span class="pre">PhotonicCrystalFiber</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.PhotonicCrystalFiber.__init__"><code class="docutils literal notranslate"><span class="pre">PhotonicCrystalFiber.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.PhotonicBandgapFiber"><code class="docutils literal notranslate"><span class="pre">PhotonicBandgapFiber</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.PhotonicBandgapFiber.__init__"><code class="docutils literal notranslate"><span class="pre">PhotonicBandgapFiber.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.FiberBundleLantern"><code class="docutils literal notranslate"><span class="pre">FiberBundleLantern</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.FiberBundleLantern.__init__"><code class="docutils literal notranslate"><span class="pre">FiberBundleLantern.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.MCFPhotonicLantern"><code class="docutils literal notranslate"><span class="pre">MCFPhotonicLantern</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.MCFPhotonicLantern.__init__"><code class="docutils literal notranslate"><span class="pre">MCFPhotonicLantern.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prim2d-class">Prim2D class</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D"><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.__init__"><code class="docutils literal notranslate"><span class="pre">Prim2D.__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.boundary_dist"><code class="docutils literal notranslate"><span class="pre">Prim2D.boundary_dist()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.make_points"><code class="docutils literal notranslate"><span class="pre">Prim2D.make_points()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.make_poly"><code class="docutils literal notranslate"><span class="pre">Prim2D.make_poly()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.plot_boundary"><code class="docutils literal notranslate"><span class="pre">Prim2D.plot_boundary()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.plot_mesh"><code class="docutils literal notranslate"><span class="pre">Prim2D.plot_mesh()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes-that-inherit-from-prim2d">classes that inherit from <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Circle"><code class="docutils literal notranslate"><span class="pre">Circle</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Circle.make_points"><code class="docutils literal notranslate"><span class="pre">Circle.make_points()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Ellipse"><code class="docutils literal notranslate"><span class="pre">Ellipse</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Ellipse.make_points"><code class="docutils literal notranslate"><span class="pre">Ellipse.make_points()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Rectangle"><code class="docutils literal notranslate"><span class="pre">Rectangle</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Rectangle.make_points"><code class="docutils literal notranslate"><span class="pre">Rectangle.make_points()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2DUnion"><code class="docutils literal notranslate"><span class="pre">Prim2DUnion</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2DUnion.__init__"><code class="docutils literal notranslate"><span class="pre">Prim2DUnion.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2DArray"><code class="docutils literal notranslate"><span class="pre">Prim2DArray</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2DArray.__init__"><code class="docutils literal notranslate"><span class="pre">Prim2DArray.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Jon Lin
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

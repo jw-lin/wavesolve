@@ -1,0 +1,1 @@
+IOR_dict = fiber.assign_IOR()
