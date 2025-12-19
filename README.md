@@ -1,4 +1,7 @@
 # wavesolve
+
+> **Update Dec 2025:** Check out the ``julia`` branch ([link](https://github.com/jw-lin/wavesolve/tree/julia)). Despite the name, it maintains the same Pythonic interface. Installation is slightly more involved and some functions are changed, but it's faster and has a basic web doc.
+
 `wavesolve` is a lightweight Python code to solve for the eigenmodes of waveguides. It can solve for both scalar and vector modes.
 It uses the finite element method, and generates waveguide meshes through the `pygmsh` package. More details on the math behind `wavesolve` are included <a href="finite_element_method_notes.pdf">here</a>.
 
