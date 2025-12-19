@@ -112,14 +112,18 @@ Scalar eigenmodes can be solved on **both** order 1 and order 2 meshes. In eithe
 3. ``IOR_dict``: a dictionary assigning different named regions of the mesh different refractive index values
 4. ``Nmax``: (optional) return only the `Nmax` largest eigenvalue/eigenvector pairs; default 6.
 5. ``target_neff``: (optional) upper bound on expected effective index of the mode you want to solve for; autocomputed if `None`.
+6. ``solve_mode``: (optional) whether to solve with ``'sparse'`` or ``'dense'`` matrices; default ``'sparse'``.
 
-Note that the autocomputed ``target_neff`` will typically be too high for waveguides which guide light in air or other low-index materials, e.g. :doc:`hollowPCF`.
+**Returns**
+
+1. ``eigvals``: array of **real** eigenvalues, descending order
+2. ``eigvecs``: array of **real** vector-valued eigenmodes
 
 To count the number of guided modes, use ::
 
-    num_modes = FEsolver.count_modes(w,wl,IOR_dict)
+    num_modes = FEsolver.count_modes(eigvals,wl,IOR_dict)
 
-This function will only work for waveguides with weak index contrast.
+with the arguments defined as above.
 
 Plot
 ^^^^
@@ -175,7 +179,7 @@ Vector modes
 
 ``wavesolve`` divides field vectors into transverse and longitudinal components. The longitudinal component is treated in the same way as a scalar mode, which has a defined value at every node position. In contrast, the transverse electric field is specified by assigning a value for the tangential electric field to every mesh edge. If :math:`N_e` is the number of mesh edges and :math:`N_n` is the number of nodes, a vector mode is an :math:`N_e+N_n` array whose first :math:`N_e` elements determine the transverse field and whose last :math:`N_n` components determine the longitudinal field.
 
-.. note:: ``wavesolve`` performs a change of variables to treat both the transverse and longitudinal field components as purely real, when physically they should be 90 degrees out of phase (i.e. the longitudinal field should be purely imaginary). See `*Lee et al. 1991* <https://ieeexplore.ieee.org/document/85399>`_ for more details.
+.. note:: ``wavesolve`` performs a change of variables to treat both the transverse and longitudinal field components as purely real, when physically they should be 90 degrees out of phase (i.e. the longitudinal field should be purely imaginary). See `Lee et al. 1991 <https://ieeexplore.ieee.org/document/85399>`_ for more details.
 
 
 Solve
@@ -191,18 +195,40 @@ The syntax for modesolving is basically the same as the in the scalar case, exce
 2. ``wl``: wavelength, defined in the same units as mesh point positions
 3. ``IOR_dict``: a dictionary assigning different named regions of the mesh different refractive index values
 4. ``Nmax``: (optional) return only the ``Nmax`` largest eigenvalue/eigenvector pairs
-5. ``target_neff``: (optional) expected effective index of the mode you want to solve for; autocomputed if ``None``.
+5. ``target_neff``: (optional) expected effective index of the mode you want to solve for; set to the max waveguide index if ``None``
+6. ``solve_mode``: (optional) ``'mixed'`` mode uses a sparse linear solver and a dense eigensolver; ``'dense'`` uses dense matrices for everything; default ``'mixed'``
 
 **Returns**
 
 1. ``eigvals``: array of eigenvalues, descending order
 2. ``eigvecs``: array of vector-valued eigenmodes
 
-The eigenvectors and eigenvalues returned by ``wavesolve`` should always be real, but the data is returned as complex just in case.
+Math
+""""""""""""""""""""
 
-The default solving mode is to transform the generalized eigenproblem :math:`A x =\lambda B x` is transformed to :math:`Cx = \lambda x` where :math:`C` solves :math:`BC = A`; this system is solved with ``Pardiso.jl``.
+Waveguide modesolving is equivalent to solving the generalized eigenporblem :math:`A \vec{x} =\lambda B \vec{x}`. For performance reasons, ``wavesolve`` transforms this problem to
 
-To count the guided modes, I generally recommend to distinguish between the physical and nonphysical modes by eye. However, for weak index constrast, ``count_modes()`` will still work.
+.. math::
+
+    C \vec{x} = \dfrac{1}{\lambda-\sigma} \vec{x}
+
+where :math:`C` solves
+
+.. math:: 
+
+    (A-\sigma B) C = B
+
+and :math:`\sigma` (which is determined by ``target_neff``) is a value near the eigenvalues of interest. This is sometimes called the "shift-invert method". In the scalar case, this is done automatically by the eigensolver, which is ``Arpack.eigs`` (in Julia). This no longer works in the vectorial case because the :math:`B` matrix becomes indefinite. Therefore, ``wavesolve`` manually applies the shift-invert transformation, solves for :math:`C`, and then solves the regular eigenproblem on :math:`C`. There is no ``solve_mode='sparse'`` because :math:`C` is typically dense. Also, since :math:`A` and :math:`B` are real-symmetric, we anticipate that the eigenvalues and eigenvectors are real-valued; nevertheless, the vectorial solver will return **complex** values with 0 imaginary part, as per the default behavior of the eigensolver.
+
+Mode counting
+""""""""""""""""""""""
+
+To count the guided modes, I generally recommend to distinguish between the physical and nonphysical modes by eye. For weak index contrast, ``count_modes()`` will work, but generally this function can fail for higher index contrast waveguides.
+
+``target_neff`` argument
+""""""""""""""""""""""""""""""
+
+For waveguides which guide light in lower-index regions, the autocomputed ``target_neff`` will be too high to efficiently find the guided modes. In this case, setting this parameter as low as possible (but still above the expected effective index of the guide modes) is critical. Refer to :doc:`hollowPCF` for an example.
 
 Plot
 ^^^^

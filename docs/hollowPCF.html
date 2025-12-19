@@ -39,12 +39,12 @@
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
     <script src="_static/documentation_options.js?v=e645c8fa"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="_static/copybutton.js?v=30646c52"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'hollowPCF';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -367,7 +367,7 @@ document.write(`
                   
   <section id="hollow-core-photonic-crystal-fiber">
 <h1><span class="section-number">3. </span>Hollow core photonic crystal fiber<a class="headerlink" href="#hollow-core-photonic-crystal-fiber" title="Link to this heading">#</a></h1>
-<p>Hollow core fibers guide light in a free-space region (refractive index <span class="math notranslate nohighlight">\(\approx\)</span> 1), which is surrounded by a higher index substrate with periodic structure. In this case, guidance is provided by the so-called photonic bandgap, which is analogous the electronic gap between Brillouin zones in crystals. The eigenmodes of such a waveguidee trickier to find because they have lower effective index, and might be hard to distinguish from cladding modes. In these cases, we must search for modes by specifying an upper bound on effective index for the guided mode.</p>
+<p>Hollow core fibers guide light in a lower-index region (e.g. in air), which is surrounded by a higher index substrate with periodic structure. In this case, guidance is provided by the so-called photonic bandgap, which is analogous to the electronic gap between Brillouin zones in crystals. The eigenmodes of such a waveguide are trickier to find because they have lower effective index, and so effective index information alone is insufficient to identify spurious modes. In these cases, we search for modes by specifying an upper bound on effective index for the guided mode.</p>
 <p>Below is an example. First we’ll make the mesh, which must be order 1 since this waveguide has high index contrast. The specs are loosely based off the images I found of NKT hollow core fibers.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wavesolve.waveguide</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotonicBandgapFiber</span>
 

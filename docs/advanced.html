@@ -39,12 +39,12 @@
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
     <script src="_static/documentation_options.js?v=e645c8fa"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="_static/copybutton.js?v=30646c52"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'advanced';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -376,7 +376,12 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vector-modes">Vector modes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Solve</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Solve</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#math">Math</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mode-counting">Mode counting</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#target-neff-argument"><code class="docutils literal notranslate"><span class="pre">target_neff</span></code> argument</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Plot</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Evaluate</a></li>
 </ul>
@@ -499,13 +504,18 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">IOR_dict</span></code>: a dictionary assigning different named regions of the mesh different refractive index values</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Nmax</span></code>: (optional) return only the <cite>Nmax</cite> largest eigenvalue/eigenvector pairs; default 6.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">target_neff</span></code>: (optional) upper bound on expected effective index of the mode you want to solve for; autocomputed if <cite>None</cite>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solve_mode</span></code>: (optional) whether to solve with <code class="docutils literal notranslate"><span class="pre">'sparse'</span></code> or <code class="docutils literal notranslate"><span class="pre">'dense'</span></code> matrices; default <code class="docutils literal notranslate"><span class="pre">'sparse'</span></code>.</p></li>
 </ol>
-<p>Note that the autocomputed <code class="docutils literal notranslate"><span class="pre">target_neff</span></code> will typically be too high for waveguides which guide light in air or other low-index materials, e.g. <a class="reference internal" href="hollowPCF.html"><span class="doc">Hollow core photonic crystal fiber</span></a>.</p>
+<p><strong>Returns</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eigvals</span></code>: array of <strong>real</strong> eigenvalues, descending order</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eigvecs</span></code>: array of <strong>real</strong> vector-valued eigenmodes</p></li>
+</ol>
 <p>To count the number of guided modes, use</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_modes</span> <span class="o">=</span> <span class="n">FEsolver</span><span class="o">.</span><span class="n">count_modes</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_modes</span> <span class="o">=</span> <span class="n">FEsolver</span><span class="o">.</span><span class="n">count_modes</span><span class="p">(</span><span class="n">eigvals</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This function will only work for waveguides with weak index contrast.</p>
+<p>with the arguments defined as above.</p>
 </section>
 <section id="plot">
 <h3>Plot<a class="headerlink" href="#plot" title="Link to this heading">#</a></h3>
@@ -564,7 +574,7 @@ document.write(`
 <p><code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> divides field vectors into transverse and longitudinal components. The longitudinal component is treated in the same way as a scalar mode, which has a defined value at every node position. In contrast, the transverse electric field is specified by assigning a value for the tangential electric field to every mesh edge. If <span class="math notranslate nohighlight">\(N_e\)</span> is the number of mesh edges and <span class="math notranslate nohighlight">\(N_n\)</span> is the number of nodes, a vector mode is an <span class="math notranslate nohighlight">\(N_e+N_n\)</span> array whose first <span class="math notranslate nohighlight">\(N_e\)</span> elements determine the transverse field and whose last <span class="math notranslate nohighlight">\(N_n\)</span> components determine the longitudinal field.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> performs a change of variables to treat both the transverse and longitudinal field components as purely real, when physically they should be 90 degrees out of phase (i.e. the longitudinal field should be purely imaginary). See <a class="reference external" href="https://ieeexplore.ieee.org/document/85399">*Lee et al. 1991*</a> for more details.</p>
+<p><code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> performs a change of variables to treat both the transverse and longitudinal field components as purely real, when physically they should be 90 degrees out of phase (i.e. the longitudinal field should be purely imaginary). See <a class="reference external" href="https://ieeexplore.ieee.org/document/85399">Lee et al. 1991</a> for more details.</p>
 </div>
 <section id="id3">
 <h3>Solve<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
@@ -578,16 +588,32 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">wl</span></code>: wavelength, defined in the same units as mesh point positions</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">IOR_dict</span></code>: a dictionary assigning different named regions of the mesh different refractive index values</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Nmax</span></code>: (optional) return only the <code class="docutils literal notranslate"><span class="pre">Nmax</span></code> largest eigenvalue/eigenvector pairs</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">target_neff</span></code>: (optional) expected effective index of the mode you want to solve for; autocomputed if <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_neff</span></code>: (optional) expected effective index of the mode you want to solve for; set to the max waveguide index if <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solve_mode</span></code>: (optional) <code class="docutils literal notranslate"><span class="pre">'mixed'</span></code> mode uses a sparse linear solver and a dense eigensolver; <code class="docutils literal notranslate"><span class="pre">'dense'</span></code> uses dense matrices for everything; default <code class="docutils literal notranslate"><span class="pre">'mixed'</span></code></p></li>
 </ol>
 <p><strong>Returns</strong></p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">eigvals</span></code>: array of eigenvalues, descending order</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">eigvecs</span></code>: array of vector-valued eigenmodes</p></li>
 </ol>
-<p>The eigenvectors and eigenvalues returned by <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> should always be real, but the data is returned as complex just in case.</p>
-<p>The default solving mode is to transform the generalized eigenproblem <span class="math notranslate nohighlight">\(A x =\lambda B x\)</span> is transformed to <span class="math notranslate nohighlight">\(Cx = \lambda x\)</span> where <span class="math notranslate nohighlight">\(C\)</span> solves <span class="math notranslate nohighlight">\(BC = A\)</span>; this system is solved with <code class="docutils literal notranslate"><span class="pre">Pardiso.jl</span></code>.</p>
-<p>To count the guided modes, I generally recommend to distinguish between the physical and nonphysical modes by eye. However, for weak index constrast, <code class="docutils literal notranslate"><span class="pre">count_modes()</span></code> will still work.</p>
+<section id="math">
+<h4>Math<a class="headerlink" href="#math" title="Link to this heading">#</a></h4>
+<p>Waveguide modesolving is equivalent to solving the generalized eigenporblem <span class="math notranslate nohighlight">\(A \vec{x} =\lambda B \vec{x}\)</span>. For performance reasons, <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> transforms this problem to</p>
+<div class="math notranslate nohighlight">
+\[C \vec{x} = \dfrac{1}{\lambda-\sigma} \vec{x}\]</div>
+<p>where <span class="math notranslate nohighlight">\(C\)</span> solves</p>
+<div class="math notranslate nohighlight">
+\[(A-\sigma B) C = B\]</div>
+<p>and <span class="math notranslate nohighlight">\(\sigma\)</span> (which is determined by <code class="docutils literal notranslate"><span class="pre">target_neff</span></code>) is a value near the eigenvalues of interest. This is sometimes called the “shift-invert method”. In the scalar case, this is done automatically by the eigensolver, which is <code class="docutils literal notranslate"><span class="pre">Arpack.eigs</span></code> (in Julia). This no longer works in the vectorial case because the <span class="math notranslate nohighlight">\(B\)</span> matrix becomes indefinite. Therefore, <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> manually applies the shift-invert transformation, solves for <span class="math notranslate nohighlight">\(C\)</span>, and then solves the regular eigenproblem on <span class="math notranslate nohighlight">\(C\)</span>. There is no <code class="docutils literal notranslate"><span class="pre">solve_mode='sparse'</span></code> because <span class="math notranslate nohighlight">\(C\)</span> is typically dense. Also, since <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span> are real-symmetric, we anticipate that the eigenvalues and eigenvectors are real-valued; nevertheless, the vectorial solver will return <strong>complex</strong> values with 0 imaginary part, as per the default behavior of the eigensolver.</p>
+</section>
+<section id="mode-counting">
+<h4>Mode counting<a class="headerlink" href="#mode-counting" title="Link to this heading">#</a></h4>
+<p>To count the guided modes, I generally recommend to distinguish between the physical and nonphysical modes by eye. For weak index contrast, <code class="docutils literal notranslate"><span class="pre">count_modes()</span></code> will work, but generally this function can fail for higher index contrast waveguides.</p>
+</section>
+<section id="target-neff-argument">
+<h4><code class="docutils literal notranslate"><span class="pre">target_neff</span></code> argument<a class="headerlink" href="#target-neff-argument" title="Link to this heading">#</a></h4>
+<p>For waveguides which guide light in lower-index regions, the autocomputed <code class="docutils literal notranslate"><span class="pre">target_neff</span></code> will be too high to efficiently find the guided modes. In this case, setting this parameter as low as possible (but still above the expected effective index of the guide modes) is critical. Refer to <a class="reference internal" href="hollowPCF.html"><span class="doc">Hollow core photonic crystal fiber</span></a> for an example.</p>
+</section>
 </section>
 <section id="id4">
 <h3>Plot<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
@@ -675,7 +701,12 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vector-modes">Vector modes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Solve</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Solve</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#math">Math</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mode-counting">Mode counting</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#target-neff-argument"><code class="docutils literal notranslate"><span class="pre">target_neff</span></code> argument</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Plot</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Evaluate</a></li>
 </ul>

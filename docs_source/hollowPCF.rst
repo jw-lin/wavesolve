@@ -1,7 +1,7 @@
 Hollow core photonic crystal fiber
 ==================================
 
-Hollow core fibers guide light in a free-space region (refractive index :math:`\approx` 1), which is surrounded by a higher index substrate with periodic structure. In this case, guidance is provided by the so-called photonic bandgap, which is analogous the electronic gap between Brillouin zones in crystals. The eigenmodes of such a waveguidee trickier to find because they have lower effective index, and might be hard to distinguish from cladding modes. In these cases, we must search for modes by specifying an upper bound on effective index for the guided mode.
+Hollow core fibers guide light in a lower-index region (e.g. in air), which is surrounded by a higher index substrate with periodic structure. In this case, guidance is provided by the so-called photonic bandgap, which is analogous to the electronic gap between Brillouin zones in crystals. The eigenmodes of such a waveguide are trickier to find because they have lower effective index, and so effective index information alone is insufficient to identify spurious modes. In these cases, we search for modes by specifying an upper bound on effective index for the guided mode.
 
 Below is an example. First we'll make the mesh, which must be order 1 since this waveguide has high index contrast. The specs are loosely based off the images I found of NKT hollow core fibers.
 

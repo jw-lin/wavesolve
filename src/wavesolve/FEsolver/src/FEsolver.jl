@@ -2,24 +2,17 @@ module FEsolver
 # construct matrices and solve eigenproblems in julia
 # also has some copy-pasted code from my cbeam package evaluating fields on FEMs
 using PythonCall
+using LinearAlgebra
 using SparseArrays
 using Arpack
-using Pardiso
 
 #region solvers
 
-function solve_scalar(A::SparseMatrixCSC,B::SparseMatrixCSC,est_eigval::Float64,Nmax::Int64)
-    w,v = eigs(A, B, which=:LM,nev=Nmax,sigma=est_eigval,explicittransform=:none)
-    return w,v
-end
-
-function solve_vector(A::SparseMatrixCSC,B::SparseMatrixCSC,est_eigval::Float64,Nmax::Int64,solve_mode::String)
-    if solve_mode == "transform"
-        ps = MKLPardisoSolver()
-        C = solve(ps,A .- est_eigval*B,Array(B))
-        w,v = eigs(C,which=:SR,nev=Nmax)
-        w = est_eigval .+ (1 ./ w)
-    elseif solve_mode == "straight"
+function solve_scalar(A::Symmetric{Float64, SparseMatrixCSC{Float64, Int64}},B::Symmetric{Float64, SparseMatrixCSC{Float64, Int64}},est_eigval::Float64,Nmax::Int64,solve_mode::String)
+    if solve_mode == "sparse"
+        w,v = eigs(A, B, which=:LM,nev=Nmax,sigma=est_eigval,explicittransform=:none)
+    elseif solve_mode == "dense"
+        A,B = Array(A),Array(B)
         w,v = eigs(A, B, which=:LM,nev=Nmax,sigma=est_eigval,explicittransform=:none)
     else
         w = nothing
@@ -28,17 +21,42 @@ function solve_vector(A::SparseMatrixCSC,B::SparseMatrixCSC,est_eigval::Float64,
     return w,v
 end
 
-function solve_waveguide(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::PyArray{Float64,1}, k2::Float64,est_eigval::Float64,Nmax::Int64; order::Int=2)
+function solve_vector(A::SparseMatrixCSC{Float64, Int64},B::Union{SparseMatrixCSC{Float64, Int64},SparseMatrixCSC{ComplexF64, Int64}},est_eigval::Float64,Nmax::Int64,solve_mode::String)
+    # some notes:
+    # A and B are real symmetric
+    # B is indefinite, so plugging into eigs directly doesn't work
+    # density of C matrix is near 1
+    if solve_mode == "mixed"
+        C = (A .- est_eigval*B) \ Array(B)
+        w,v = eigs(C,which=:SR,nev=Nmax)
+        w = est_eigval .+ (1 ./ w) 
+    elseif solve_mode == "dense"
+        A,B = Array(A),Array(B)
+        C = (A .- est_eigval*B) \ B
+        w,v = eigs(C,which=:SR,nev=Nmax)
+        w = est_eigval .+ (1 ./ w) 
+    else
+        w = nothing
+        v = nothing
+    end
+    return w,v
+end
+
+function solve_waveguide(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::PyArray{Float64,1}, k2::Float64,est_eigval::Float64,Nmax::Int64; order::Int=2, solve_mode::String = "sparse")
     if order == 2
         A,B = construct_AB_order2(points,tris,pyconvert(Vector{Float64},IORs),k2)
     elseif order == 1
         A,B = construct_AB_order1(points,tris,pyconvert(Vector{Float64},IORs),k2)
     end
-    w,v = solve_scalar(A,B,est_eigval,Nmax)
+    w,v = solve_scalar(A,B,est_eigval,Nmax,solve_mode)
 end
 
-function solve_waveguide_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::PyArray{Float64,1}, k2::Float64,Nedges::Int64, est_eigval::Float64,Nmax::Int64,solve_mode::String = "transform")
-    A,B = construct_AB_vec(points,tris,edges,pyconvert(Vector{Float64},IORs),k2,Nedges)
+function solve_waveguide_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::PyArray{Float64,1}, k2::Float64,Nedges::Int64, est_eigval::Float64,Nmax::Int64 ; solve_mode::String = "mixed")
+    if solve_mode == "sparse"
+        A,B = construct_AB_vec(points,tris,edges,pyconvert(Vector{Float64},IORs),k2,Nedges,complex=true)
+    else
+        A,B = construct_AB_vec(points,tris,edges,pyconvert(Vector{Float64},IORs),k2,Nedges)
+    end
     w,v = solve_vector(A,B,est_eigval,Nmax,solve_mode)
     return w,v
 end
@@ -47,12 +65,12 @@ end
 
 #region matrices, scalar
 
-function construct_AB_order2(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) :: Tuple{SparseMatrixCSC{Float64, Int64}, SparseMatrixCSC{Float64, Int64}}
+function construct_AB_order2(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) #:: Tuple{SparseMatrixCSC{Float64, Int64}, SparseMatrixCSC{Float64, Int64}}
     N = size(points,2)
     Is,Js,Avals,Bvals = compute_AB_vals_order2(points,tris,IORs,k2)
     A = sparse(Is,Js,Avals,N,N)
     B = sparse(Is,Js,Bvals,N,N)
-    return A,B
+    return Symmetric(A),Symmetric(B)
 end
 
 function compute_AB_vals_order2(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) :: Tuple{Vector{Int64},Vector{Int64},Vector{Float64},Vector{Float64}}
@@ -72,7 +90,7 @@ function compute_AB_vals_order2(points:: Array{Float64,2},tris::Array{Int64,2}, 
     return Is,Js,Avals,Bvals
 end
 
-function construct_AB_order1(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) :: Tuple{SparseMatrixCSC{Float64, Int64}, SparseMatrixCSC{Float64, Int64}}
+function construct_AB_order1(points:: Array{Float64,2},tris::Array{Int64,2}, IORs::Array{Float64,1}, k2::Float64) #:: Tuple{SparseMatrixCSC{Float64, Int64}, SparseMatrixCSC{Float64, Int64}}
     N = size(points,2)
     Is = vec(repeat(tris,inner=[3,1]))
     Js = vec(repeat(tris,outer=[3,1]))
@@ -88,14 +106,14 @@ function construct_AB_order1(points:: Array{Float64,2},tris::Array{Int64,2}, IOR
     end
     A = sparse(Is,Js,Avals,N,N)
     B = sparse(Is,Js,Bvals,N,N)
-    return A,B
+    return Symmetric(A),Symmetric(B)
 end
 
 #endregion
 
 #region matrices, vector
 
-function construct_AB_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::Array{Float64,1}, k2::Float64,Nedges::Int64)
+function construct_AB_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::Array{Float64,1}, k2::Float64,Nedges::Int64 ; complex::Bool=false)
     Ntt = Nedges
     Nzz = size(points,2)
     N = Ntt + Nzz
@@ -122,19 +140,33 @@ function construct_AB_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::
         NedN = computeL_Ne_dN(pc)
         cdNcdN = computeL_curlNe_curlNe(pc)
 
-        Att[(i-1)*9+1:i*9] .= n2*k2 * vec(NeNe) .- vec(cdNcdN)
+        Att[(i-1)*9+1:i*9] .= vec(Symmetric(n2*k2 * NeNe .- cdNcdN))
         Btt[(i-1)*9+1:i*9] .= vec(NeNe)
         Btz[(i-1)*9+1:i*9] .= vec(NedN')
         Bzt[(i-1)*9+1:i*9] .= vec(NedN)
         Bzz[(i-1)*9+1:i*9] .= vec(dNdN) .- n2*k2*vec(NN)
     end
 
+    # Att, Btt, Bzz are sym
+    # overall B is also sym, since Btz = Bzt'
+    # so we technically don't need to fill all the entries
+    # but the pardiso solver requires a dense B array anyways
+
     # order is tt tz zt zz
     Is = [Is_t ; Is_t ; Is_z .+ Ntt ; Is_z .+ Ntt]
     Js = [Js_t ; Js_z .+ Ntt ; Js_t ; Js_z .+ Ntt]
 
+    # order is tt zt zz
+    #Is = [Is_t ; Is_z .+ Ntt ; Is_z .+ Ntt]
+    #Js = [Js_t ; Js_t ; Js_z .+ Ntt]
     A = sparse(Is_t,Js_t,Att,N,N)
-    B = sparse(Is,Js,[Btt ; Btz ; Bzt ; Bzz],N,N)
+    if complex
+        B = sparse(Is,Js,[Btt ; -1im*Btz ; 1im*Bzt ; Bzz],N,N)
+    else
+        B = sparse(Is,Js,[Btt ; Btz ; Bzt ; Bzz],N,N)
+    end
+    
+    #B = sparse(Is,Js,[Btt ; Bzt ; Bzz],N,N)
     return A,B
 end
 #endregion

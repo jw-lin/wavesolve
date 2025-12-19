@@ -8,8 +8,8 @@ The general workflow for ``wavesolve`` is the following:
 
 1. Define a waveguide cross-section, by setting refractive index values and material boundaries
 2. Generate a finite element mesh for the waveguide
-3. Solve the generalized eigenvector problem on the mesh, giving the eigenmodes of the waveguide.
-4. Plot and resample the eigenvectors as needed.
+3. Solve the generalized eigenproblem on the mesh, giving the eigenmodes of the waveguide.
+4. Plot and resample the eigenmodes as needed.
 
 To implement the above, ``wavesolve`` provides the following submodules:
 

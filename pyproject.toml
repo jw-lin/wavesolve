@@ -8,3 +8,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "wavesolve"
 version = "0.0.1"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "gmsh",
+    "pygmsh",
+    "juliacall",
+]

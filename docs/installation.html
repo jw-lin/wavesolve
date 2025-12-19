@@ -39,10 +39,10 @@
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
     <script src="_static/documentation_options.js?v=e645c8fa"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="_static/copybutton.js?v=30646c52"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'installation';</script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -339,7 +339,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -355,6 +357,14 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -366,34 +376,31 @@ document.write(`
                   
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
-<p>Make sure you have the following dependencies, e.g. using <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">numpy</span> <span class="n">matplotlib</span> <span class="n">gmsh</span> <span class="n">pygmsh</span> <span class="n">juliacall</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">juliacall</span></code> should automatically install a suitable version of Julia. <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
-<p>Then to install <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code>:</p>
+<p>To install <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> and its dependencies, use <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">jw</span><span class="o">-</span><span class="n">lin</span><span class="o">/</span><span class="n">wavesolve</span><span class="o">.</span><span class="n">git</span><span class="nd">@julia</span>
 </pre></div>
 </div>
-<p>Lastly, run the following (e.g. in IPython) to setup the Julia module <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code>:</p>
+<p>When importing <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> for the first time, a suitable Julia installation will be installed if necessary. Next run the following (e.g. in a Python shell) to setup the Julia module <code class="docutils literal notranslate"><span class="pre">FEsolver</span></code> and its dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">wavesolve</span>
 <span class="n">wavesolve</span><span class="o">.</span><span class="n">FEsolversetup</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>This will set up the Julia dependencies <code class="docutils literal notranslate"><span class="pre">SparseArrays</span></code>, <code class="docutils literal notranslate"><span class="pre">PythonCall</span></code>, <code class="docutils literal notranslate"><span class="pre">Arpack</span></code>, and <code class="docutils literal notranslate"><span class="pre">Pardiso</span></code>, then precompile the Julia module.</p>
 <p>To update the package:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">force</span><span class="o">-</span><span class="n">reinstall</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">jw</span><span class="o">-</span><span class="n">lin</span><span class="o">/</span><span class="n">wavesolve</span><span class="o">.</span><span class="n">git</span><span class="nd">@julia</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">jw</span><span class="o">-</span><span class="n">lin</span><span class="o">/</span><span class="n">wavesolve</span><span class="o">.</span><span class="n">git</span><span class="nd">@julia</span>
 </pre></div>
 </div>
-<p>and do the Julia module setup again.</p>
-<p>If you are running into trouble with the Julia side, I recommend making sure <code class="docutils literal notranslate"><span class="pre">juliacall</span></code> is up to date, and/or emptying out the <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> (specifically the <code class="docutils literal notranslate"><span class="pre">wavesolve/FEsolver/Manifest.toml</span></code> file) before reinstalling.</p>
-<p class="rubric">Footnotes</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id2" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>For some reason, this tends to be an older version of Julia, at least on my machine.</p>
-</aside>
-</aside>
+<p>and do the Julia module setup again. Now you should be able to run the snippets in <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart</span></a>.</p>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<p>If you are running into trouble with the Julia side, I recommend making sure <code class="docutils literal notranslate"><span class="pre">juliacall</span></code> is up to date, and/or emptying out the <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> folder (specifically the <code class="docutils literal notranslate"><span class="pre">wavesolve/FEsolver/Manifest.toml</span></code> file) before reinstalling.</p>
+<p>For reference, the Python dependencies are <code class="docutils literal notranslate"><span class="pre">numpy</span> <span class="pre">matplotlib</span> <span class="pre">gmsh</span> <span class="pre">pygmsh</span> <span class="pre">juliacall</span></code>, which are all <code class="docutils literal notranslate"><span class="pre">pip</span></code>-installable.</p>
+<p>The Julia dependencies are <code class="docutils literal notranslate"><span class="pre">PythonCall</span> <span class="pre">LinearAlgebra</span> <span class="pre">SparseArrays</span> <span class="pre">Arpack</span></code>. To install these manually for a clean install of <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> you need to start a Julia prompt in the <code class="docutils literal notranslate"><span class="pre">wavesolve</span></code> directory, enter Julia’s package manager (<code class="docutils literal notranslate"><span class="pre">]</span></code> key), and then run the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">activate</span> <span class="n">FEsolver</span>
+<span class="n">add</span> <span class="n">PythonCall</span> <span class="n">LinearAlgebra</span> <span class="n">SparseArrays</span> <span class="n">Arpack</span>
+<span class="n">precompile</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -431,6 +438,21 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

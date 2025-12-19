@@ -204,6 +204,12 @@ class Prim2D:
         inside the closed curve, the primitive has refractive index n. 
     """
     def __init__(self,n,label,points=[]):
+        """
+        ARGS:
+            n (float): refractive index
+            label (str): a bookkeeping label to attach to this object (e.g. "core")
+            points: a list or array of [x,y] points corresponding to the shape's boundary
+        """
         self.points = points
         self.label = label
         self.n = n
@@ -212,7 +218,11 @@ class Prim2D:
         self.skip_refinement = False
     
     def make_poly(self,geom):
-        # check depth of self.points
+        """ convert self.points into a Gmsh polygon
+
+        ARGS:
+            geom: pygmsh geometry kernel
+        """
         if hasattr(self.points[0][0],'__len__'):
             ps = [geom.add_polygon(p) for p in self.points]
             poly = geom.boolean_union(ps)[0]
@@ -220,23 +230,15 @@ class Prim2D:
             poly = geom.add_polygon(self.points)
         return poly
 
-    def update(self,points):
-        """ update the primitive according to some args and return an Nx2 array of points.
-            the default behavior is to manually pass in a points array. more specific primitives
-            inheriting from Prim2D should implement their own update().
-        """
-        self.points = points
-        self.res = len(self.points)
-        return points
-
     def make_points(self):
         """ make an Nx2 array of points for marking the primitive boundary,
-            according to some args. CCW ordering!
+            according to some args. CCW ordering! this is a placeholder; 
+            subclasses should implement this function.
         """
         return self.points
 
     def plot_mesh(self):
-        """ a quick check to see what this object looks like. generates a mesh with default parameters. """
+        """ plot a mesh corresponding to this primitive. useful for quickly checking the shape. """
         with pygmsh.occ.Geometry() as geom:
             poly = self.make_poly(geom)
             geom.add_physical(poly,"poly")
@@ -244,8 +246,11 @@ class Prim2D:
         plot_mesh(m)            
 
     def boundary_dist(self,x,y):
-        """ this function computes the distance between the point (x,y) and the boundary of the primitive. negative distances -> inside the boundary, while positive -> outside
-            note that this doesn't need to be exact. the "distance" just needs to be positive outside the boundary, negative inside the boundary, and go to 0 as you approach the boundary.
+        """ compute the signed distance between the point (x,y) and the boundary of the primitive. 
+            negative distances -> inside the boundary, while positive -> outside.
+            note that this doesn't need to be exact. the "distance" just needs to be positive outside the boundary, 
+            negative inside the boundary, and go to 0 as you approach the boundary. 
+            this is a placeholder - subclasses should implement this function.
         """
         pass
 
@@ -255,6 +260,14 @@ class Prim2D:
         return np.argmin(dists)
 
     def plot_boundary(self,ax=None,color="red",alpha=1,lw=1):
+        """ plot the boundary of the primitive 
+
+        ARGS:
+            ax (matplotlib.axes): matplotlib axis to plot on; if None, one will be made.
+            color (str): linecolor of the boundary
+            alpha (float): line opacity
+            lw (float): line width
+        """
         if hasattr(self,"boundary_pts"):
             points = self.boundary_pts
         else:
@@ -272,9 +285,15 @@ class Prim2D:
             plt.show() 
 
 class Circle(Prim2D):
-    """ a Circle primitive, defined by radius, center, and number of sides """
+    """ a (discretized) Circle primitive, defined by radius, center, and number of sides """
 
     def make_points(self,radius,res,center=(0,0)):
+        """
+        ARGS:
+            radius (float): circle radius
+            res (int): number of line segments with which to discretize the circle
+            center: (x,y) coordinates of the circle center
+        """
         thetas = np.linspace(0,2*np.pi,res,endpoint=False)
         points = []
         for t in thetas:
@@ -293,6 +312,13 @@ class Rectangle(Prim2D):
     """ rectangle primitive, defined by corner pounts. """
 
     def make_points(self,xmin,xmax,ymin,ymax):
+        """
+        ARGS:
+            xmin (float): minimum x coordinate of the rectangle
+            xmax (float): maximum x coordinate
+            ymin (float): minimum y coordinate
+            ymax (float): maximum y coordinate
+        """
         points = np.array([[xmin,ymin],[xmax,ymin],[xmax,ymax],[xmin,ymax]])
         self.bounds = [xmin,xmax,ymin,ymax]
         self.points = points
@@ -311,6 +337,13 @@ class Rectangle(Prim2D):
 class Ellipse(Prim2D):
     """axis-aligned ellipse. a is the semi-axis along x, b is the semi-axis along y."""
     def make_points(self,a,b,res,center=(0,0)):
+        """
+        ARGS:
+            a (float): semimajor axis
+            b (float): semiminor axis
+            res (int): number of line segments with which to discretize the ellipse
+            center: (x,y) coordinates of the circle center
+        """
         thetas = np.linspace(0,2*np.pi,res,endpoint=False)
         points = []
         for t in thetas:
@@ -329,6 +362,11 @@ class Ellipse(Prim2D):
 class Prim2DUnion(Prim2D):
     """ a union of Prim2Ds """
     def __init__(self,ps:list[Prim2D],label):
+        """
+        ARGS:
+            ps (list[Prim2D]): a list of Prim2D objects to boolean union
+            label (str): a bookkeeping label to attach to this object (e.g. "core")
+        """
         ns = [p.n for p in ps]
         assert np.all(np.array(ns)==ns[0]),"primitives must have the same refractive index"
         centers = np.array([p.center for p in ps])
@@ -421,6 +459,11 @@ class Prim2DUnion(Prim2D):
 class Prim2DArray(Prim2D):
     """an array of identical non-intersecting Prim2Ds copied at different locations """
     def __init__(self,ps:list[Prim2D],label):
+        """
+        ARGS:
+            ps (list[Prim2D]): a list of Prim2D objects
+            label (str): a bookkeeping label to attach to this object (e.g. "core")
+        """
         ns = [p.n for p in ps]
         assert np.all(np.array(ns)==ns[0]),"primitives must have the same refractive index"
         for p in ps:
@@ -457,23 +500,23 @@ class Prim2DArray(Prim2D):
         
 class Waveguide:
     """ a Waveguide is a collection of prim2Dgroups, organized into layers. the refractive index 
-    of earler layers is overwritten by later layers.
+    of earlier layers is overwritten by later layers.
     """
 
-    isect_skip_layers = [0]
+    #: float: mesh boundary refinement linear distance scaling  
+    mesh_dist_scale = 0.25   
 
-    # mesh params
-    mesh_dist_scale = 0.25  # mesh boundary refinement linear distance scaling   
-    mesh_dist_power = 1.0   # mesh boundary refinement power scaling
-    min_mesh_size = 0.1     # minimum allowed mesh size
-    max_mesh_size = 10.     # maximum allowed mesh size
+    #: float: mesh boundary refinement power scaling
+    mesh_dist_power = 1.0
 
-    recon_midpts = True
-    vectorized_transform = False
+    #: float: minimum allowed mesh size
+    min_mesh_size = 0.1
+    
+    #: float: maximum allowed mesh size
+    max_mesh_size = 10.
 
     def __init__(self,prim2Dgroups):
-        """ initialize a Waveguide object
-
+        """
         ARGS:
             prim2Dgroups: a (potentially) nested list of Prim2D objects. Later
                           elements overwrite earlier ones, in terms
@@ -658,15 +701,16 @@ class Waveguide:
             plt.show()
     
 class CircularFiber(Waveguide):
+    """a circular step-index optical fiber"""
     def __init__(self,rcore,rclad,ncore,nclad,core_res,clad_res=None,core_mesh_size=None,clad_mesh_size=None):
-        """ Make a circular step-index optical fiber
-        ARGS
-            rcore: radius of core
-            rclad: radius of cladding
-            ncore: core index
-            nclad: cladding index
-            core_res: number of line segments to divide the core boundary into
-            clad_res: number of line segments to divide the cladding boundary into, default core_res/2
+        """
+        ARGS:
+            rcore (float): radius of core
+            rclad (float): radius of cladding
+            ncore (float): core index
+            nclad (float): cladding index
+            core_res (int): number of line segments to divide the core boundary into
+            clad_res (int): number of line segments to divide the cladding boundary into, default core_res/2
         """
         if clad_res == None:
             clad_res = int(core_res/2)
@@ -680,16 +724,17 @@ class CircularFiber(Waveguide):
         super().__init__([cladding,core])
 
 class EllipticalFiber(Waveguide):
+    """an axis-aligned elliptical core step-index fiber"""
     def __init__(self,acore,bcore,rclad,ncore,nclad,core_res,clad_res=None,core_mesh_size=None,clad_mesh_size=None):
-        """ make an axis-aligned elliptical core step-index fiber
-        ARGS
-            acore: extent of elliptical core along x (the "x" radius)
-            bcore: extent of elliptical core along y (the "y" radius)
-            rclad: radius of cladding, assumed circular
-            ncore: core index
-            nclad: cladding index
-            core_res: number of line segments to divide the core boundary into
-            clad_res: number of line segments to divide the cladding boundary into, default core_res/2
+        """
+        ARGS:
+            acore (float): extent of elliptical core along x (the "x" radius)
+            bcore (float): extent of elliptical core along y (the "y" radius)
+            rclad (float): radius of cladding, assumed circular
+            ncore (float): core index
+            nclad (float): cladding index
+            core_res (int): number of line segments to divide the core boundary into
+            clad_res (int): number of line segments to divide the cladding boundary into, default core_res/2
         """
         if clad_res == None:
             clad_res = int(core_res/2)
@@ -706,16 +751,16 @@ class PhotonicCrystalFiber(Waveguide):
     def __init__(self,rhole,rclad,nclad,spacing,hole_res,clad_res,hole_mesh_size=None,clad_mesh_size=None,nhole=1.,rcore=0):
         """
         ARGS:
-            rhole: the radius of each air hole perforating the fiber
-            rclad: the outer cladding radius of the fiber
-            nclad: the index of the cladding material
-            spacing: the physical spacing between holes
-            hole_res: the # of line segments used to resolve each hole boundary
-            clad_res: the # of line segments used to resolve the outer cladding boundary
-            hole_mesh_size: (opt.) target mesh size inside holes
-            clad_mesh_size: (opt.) target mesh size inside cladding, but outside holes
-            nhole: (opt.) index of the holes, default 1.
-            rcore: (opt.) the "core radius" of the fiber. holes whose centers are within this radius from the origin are not generated. default 0 (no central hole).
+            rhole (float): the radius of each air hole perforating the fiber
+            rclad (float): the outer cladding radius of the fiber
+            nclad (float): the index of the cladding material
+            spacing (float): the physical spacing between holes
+            hole_res (int): the # of line segments used to resolve each hole boundary
+            clad_res (int): the # of line segments used to resolve the outer cladding boundary
+            hole_mesh_size (float): target mesh size inside holes
+            clad_mesh_size (float): target mesh size inside cladding, but outside holes
+            nhole (float): index of the holes, default 1.
+            rcore (float): the "core radius" of the fiber. holes whose centers are within this radius from the origin are not generated. default 0 (no central hole).
         """    
         
         # get air hole positions
@@ -754,16 +799,16 @@ class PhotonicBandgapFiber(Waveguide):
     def __init__(self,rvoid,rhole,rclad,nclad,spacing,hole_res,clad_res,hole_mesh_size=None,clad_mesh_size=None,nhole=1.):
         """
         ARGS:
-            rvoid: the radius of the central air hole
-            rhole: the radius of the cladding air holes perforating the fiber
-            rclad: the outer cladding radius of the fiber
-            nclad: the index of the cladding material
-            spacing: the physical spacing between holes
-            hole_res: the # of line segments used to resolve each hole boundary
-            clad_res: the # of line segments used to resolve the outer cladding boundary
-            hole_mesh_size: (opt.) target mesh size inside holes
-            clad_mesh_size: (opt.) target mesh size inside cladding, but outside holes
-            nhole: (opt.) index of the holes, default 1.
+            rvoid (float): the radius of the central air hole
+            rhole (float): the radius of the cladding air holes perforating the fiber
+            rclad (float): the outer cladding radius of the fiber
+            nclad (float): the index of the cladding material
+            spacing (float): the physical spacing between holes
+            hole_res (int): the # of line segments used to resolve each hole boundary
+            clad_res (int): the # of line segments used to resolve the outer cladding boundary
+            hole_mesh_size (float): target mesh size inside holes
+            clad_mesh_size (float): target mesh size inside cladding, but outside holes
+            nhole (float): index of the holes, default 1.
         """    
         
         # get air hole positions

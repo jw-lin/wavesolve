@@ -14,9 +14,9 @@ def count_modes(w,wl,IOR_dict):
     """ count the number of guided (non-spurious) modes. This function only works well for weakly guiding waveguides!
         
     ARGS:
-        w: array of eigenvalues corresponding to the modes, assumed decreasing.
-        wl: wavelength
-        IOR_dict: a dictionary assigning different named regions of the mesh different refractive index values
+        w (array): array of eigenvalues corresponding to the modes, assumed decreasing.
+        wl (float): wavelength
+        IOR_dict (dict): a dictionary assigning different named regions of the mesh different refractive index values
     """
     nmin,nmax = min(IOR_dict.values()),max(IOR_dict.values()) 
     mode_count = 0
@@ -31,21 +31,25 @@ def count_modes(w,wl,IOR_dict):
 
     return mode_count
 
-def solve_waveguide(mesh,wl,IOR_dict,Nmax=6,target_neff=None):
-    """ given a mesh, propagation wavelength, and refractive index dictionary, solve for the SCALAR modes. 
-        Uses order 2 triangular finite elements.
+def solve_waveguide(mesh,wl,IOR_dict,Nmax=6,target_neff=None,solve_mode="sparse"):
+    """ given a mesh, propagation wavelength, and refractive index dictionary, solve for the scalar modes. 
     
     ARGS: 
         mesh: mesh object corresponding to waveguide geometry
-        wl: wavelength, defined in the same units as mesh point positions
-        IOR_dict: a dictionary assigning different named regions of the mesh different refractive index values
-        Nmax: return only the <Nmax> largest eigenvalue/eigenvector pairs
-        target_neff: search for modes with indices close to but below this value. if None, target_neff is set to the maximum index in the guide.
+        wl (float): wavelength, defined in the same units as mesh point positions
+        IOR_dict (dict): a dictionary assigning different named regions of the mesh different refractive index values
+        Nmax (int): return only the <Nmax> largest eigenvalue/eigenvector pairs
+        target_neff (float or None): search for modes with indices close to but below this value. if None, target_neff is set to the maximum index in the guide.
+        solve_mode (str): use 'sparse' or 'dense' matrices when solving
     
     RETURNS:
-        w: array of eigenvalues, descending order
-        v: array of corresponding eigenvectors (waveguide modes)
+        (tuple) : a tuple containing:
+            
+            - eigvals: array of eigenvalues, descending order
+            - eigvecs: array of corresponding eigenvectors (waveguide modes)
     """
+
+    assert solve_mode in ["sparse","dense"], "solve_mode must be 'sparse' or 'dense' (default 'sparse')."
 
     # sort the mesh if necessary
     if not hasattr(mesh,"tree"):
@@ -69,26 +73,30 @@ def solve_waveguide(mesh,wl,IOR_dict,Nmax=6,target_neff=None):
         est_eigval = np.power(k*target_neff,2)
 
     order = get_mesh_order(mesh)
-    w,v = jl.FEsolver.solve_waveguide(points,tris,IORs,k**2,est_eigval,Nmax,order=order)
+    w,v = jl.FEsolver.solve_waveguide(points,tris,IORs,k**2,est_eigval,Nmax,order=order,solve_mode=solve_mode)
     w,v = np.array(w),np.array(v).T
 
     return w,v
 
-def solve_waveguide_vec(mesh,wl,IOR_dict,Nmax=6,target_neff=None,solve_mode="transform"):
-    """ given a mesh, propagation wavelength, and refractive index dictionary, solve for VECTOR modes, using linear triangles (order 1).
+def solve_waveguide_vec(mesh,wl,IOR_dict,Nmax=6,target_neff=None,solve_mode="mixed"):
+    """ given a mesh, propagation wavelength, and refractive index dictionary, solve for the vector modes.
     
     ARGS: 
         mesh: mesh object corresponding to waveguide geometry
-        wl: wavelength, defined in the same units as mesh point positions
-        IOR_dict: a dictionary assigning different named regions of the mesh different refractive index values
-        Nmax: return only the <Nmax> largest eigenvalue/eigenvector pairs
-        target_neff: search for modes with indices close to but below this value. if None, target_neff is set to the maximum index in the guide.
+        wl (float): wavelength, defined in the same units as mesh point positions
+        IOR_dict (dict): a dictionary assigning different named regions of the mesh different refractive index values
+        Nmax (int): return only the <Nmax> largest eigenvalue/eigenvector pairs
+        target_neff (float or None): search for modes with indices close to but below this value. if None, target_neff is set to the maximum index in the guide.
+        solve_mode (str): 'mixed' combines a sparse linear solve and a dense eigensolve. 'dense' uses dense matrices for everything; default 'mixed'
 
     RETURNS:
-        w: array of eigenvalues, descending order
-        v: array of corresponding eigenvectors (waveguide modes)
+        (tuple) : a tuple containing:
+            
+            - eigvals: array of eigenvalues, descending order
+            - eigvecs: array of corresponding eigenvectors (waveguide modes)
     """
     assert get_mesh_order(mesh) == 1, "only order 1 meshes supported for vectorial solving"
+    assert solve_mode in ["mixed","dense"], "solve_mode must be 'mixed' or 'dense' (default 'mixed')."
 
     # sort the mesh if necessary
     if not hasattr(mesh,"tree"):
@@ -112,7 +120,7 @@ def solve_waveguide_vec(mesh,wl,IOR_dict,Nmax=6,target_neff=None,solve_mode="tra
     else:
         est_eigval = np.power(k*target_neff,2)
 
-    w,v = jl.FEsolver.solve_waveguide_vec(points,tris,edges,IORs,k**2,Nedges,est_eigval,Nmax,solve_mode)
+    w,v = jl.FEsolver.solve_waveguide_vec(points,tris,edges,IORs,k**2,Nedges,est_eigval,Nmax,solve_mode=solve_mode)
     w,v = np.array(w),np.array(v).T
 
     return w,v
@@ -122,16 +130,17 @@ def solve_waveguide_vec(mesh,wl,IOR_dict,Nmax=6,target_neff=None,solve_mode="tra
 #region plotting
 
 def plot_vector_field(mesh,field,show_mesh=False,ax=None,arrows=True,res=100,bounds=None):
-    """ plot a vector field - transverse and (modulus of) longitudinal components. 
-    ARGS
+    """ plot a vector field - transverse and longitudinal components.
+
+    ARGS:
         mesh: finite element mesh
-        field: a 1D array (column vector) corresponding to a vector-valued field (e.g. eigenmode)
-            which encodes both transverse and longitudinal components
-        show_mesh: set True to additionally plot the mesh geometry
-        ax: optionally put the plots on mpl axis. if one axis is given, only the transverse part is plotted.
-            if (ax0,ax1) is given, the longitudinal component is also plotted. if None, axes are made for both.
-        arrows: whether or not to overplot field arrows
-        res: grid resolution, make tuple to set xres and yres separately
+        field (array): a 1D array corresponding to a vector-valued field (e.g. eigenmode)
+                which encodes both transverse and longitudinal components
+        show_mesh (bool): set True to additionally plot the mesh geometry
+        ax (matplotlib.axes or None): optionally put the plots on mpl axis. if one axis is given, only the transverse part is plotted.
+                if (ax0,ax1) is given, the longitudinal component is also plotted. if None, axes are made for both.
+        arrows (bool): whether or not to overplot field arrows
+        res (int): grid resolution, make tuple to set xres and yres separately
         bounds: 4-element array [xmin,xmax,ymin,ymax], setting plot boundary.
     """
     if bounds is None:
@@ -181,13 +190,14 @@ def plot_vector_field(mesh,field,show_mesh=False,ax=None,arrows=True,res=100,bou
 
 def plot_scalar_field(mesh,field,show_mesh=False,ax=None,res=100,bounds=None):
     """ plot a scalar field
-    ARGS
+
+    ARGS:
         mesh: finite element mesh
-        field: a 1D array (column vector) corresponding to a scalar-valued field (e.g. eigenmode)
-        show_mesh: set True to additionally plot the mesh geometry
-        ax: optionally put the plots on mpl axis. if one axis is given, only the transverse part is plotted.
+        field (array): a 1D array corresponding to a scalar-valued field (e.g. eigenmode)
+        show_mesh (bool): set True to additionally plot the mesh geometry
+        ax (matplotlib.axes or None): optionally put the plots on an axis. if one axis is given, only the transverse part is plotted.
             if (ax0,ax1) is given, the longitudinal component is also plotted. if None, axes are made for both.
-        res: grid resolution, make tuple to set xres and yres separately
+        res (int): grid resolution, make tuple to set xres and yres separately
         bounds: 4-element array [xmin,xmax,ymin,ymax], setting plot boundary.
     """
 
@@ -219,7 +229,12 @@ def plot_scalar_field(mesh,field,show_mesh=False,ax=None,res=100,bounds=None):
 # region interpolation
 
 def isvectorial(field,mesh):
-    """ determine if field is a vector or scalar field """
+    """ determine if field is a vector or scalar field 
+    
+    ARGS:
+        field (array): electric field evaluated on a finite element mesh
+        mesh: the finite element mesh
+    """
     if len(field) == mesh.points.shape[0]:
         return False
     return True
@@ -263,7 +278,7 @@ def evaluate(point,field,mesh):
         mesh: the FE mesh, which has been sorted with sort_mesh().
 
     RETURNS:
-        (float or vector): the field evaluated at point(s)
+        (float or array): the field evaluated at point(s)
     """
     if isvectorial(field,mesh):
         if point.ndim == 2:
@@ -305,7 +320,10 @@ def resample(field,mesh,newmesh):
         mesh: the finite element mesh on which <field> is defined.
         newmesh: the new finite element mesh <field> should be sampled on.
     """
-    return evaluate(newmesh.points,field,mesh.tree)
+    # sort the mesh if necessary
+    if not hasattr(newmesh,"tree"):
+        sort_mesh(newmesh)
+    return evaluate(newmesh.points,field,mesh)
 
 def get_mesh_bounds(mesh):
     return np.array(mesh.tree._idxtree.bbox)
@@ -315,7 +333,13 @@ def get_mesh_bounds(mesh):
 #region misc
 
 def sort_mesh(mesh):
-    """ create a BVH tree for ``mesh`` and pass it into to ``mesh.tree`` """
+    """ create a bounding volume hierarchy tree for ``mesh`` and pass it into to ``mesh.tree``.
+    this is required for evaluations of fields on meshes. you usually don't need to 
+    call this manually.
+    
+    ARGS:
+        mesh: finite element mesh
+    """
 
     mesh.tree = create_tree_from_mesh(mesh)
     return mesh
@@ -327,7 +351,12 @@ def dec_2D(v,decim_factor=4):
     return v[::decim_factor,::decim_factor]
 
 def get_eff_index(wl,w):
-    """ get effective index from wavelength wl and eigenvlaue w """
+    """ get effective refractive index from wavelength wl and eigenvlaue w 
+    
+    ARGS:
+        wl (float): wavelength
+        w (float or array): eigenvalue(s)
+    """
     k = 2*np.pi/wl
     return np.sqrt(w/k**2)
 
