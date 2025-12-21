@@ -159,6 +159,7 @@
 <li class="toctree-l2"><a class="reference internal" href="PL3.html">1. 3-port photonic lantern</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ellip.html">2. Elliptical core fiber</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hollowPCF.html">3. Hollow core photonic crystal fiber</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rect.html">4. Rectangular directional coupler</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced usage</a></li>
@@ -409,10 +410,11 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D"><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.__init__"><code class="docutils literal notranslate"><span class="pre">Prim2D.__init__()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.boundary_dist"><code class="docutils literal notranslate"><span class="pre">Prim2D.boundary_dist()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.dist_map"><code class="docutils literal notranslate"><span class="pre">Prim2D.dist_map()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.inside"><code class="docutils literal notranslate"><span class="pre">Prim2D.inside()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.make_points"><code class="docutils literal notranslate"><span class="pre">Prim2D.make_points()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.make_poly"><code class="docutils literal notranslate"><span class="pre">Prim2D.make_poly()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.plot_boundary"><code class="docutils literal notranslate"><span class="pre">Prim2D.plot_boundary()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.plot_mesh"><code class="docutils literal notranslate"><span class="pre">Prim2D.plot_mesh()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes-that-inherit-from-prim2d">classes that inherit from <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code></a><ul class="nav section-nav flex-column">
@@ -459,20 +461,20 @@ document.write(`
 <li><p><a class="reference internal" href="#prim2d-class" id="id2">Prim2D class</a></p></li>
 </ul>
 </nav>
-<p>This page contains the documentation for the <code class="docutils literal notranslate"><span class="pre">waveguide</span></code> submodule, which functionally defines different kinds of waveguides, enables the creation of custom waveguides, and handles mesh generation for finite element analysis.</p>
+<p>This page contains the documentation for the <code class="docutils literal notranslate"><span class="pre">waveguide</span></code> submodule, which defines different kinds of waveguides, enables the creation of custom waveguides, and handles mesh generation for finite element analysis.</p>
 <section id="waveguide-class">
 <h2><a class="toc-backref" href="#id1" role="doc-backlink">Waveguide class</a><a class="headerlink" href="#waveguide-class" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">Waveguide</span></span><a class="headerlink" href="#wavesolve.waveguide.Waveguide" title="Link to this definition">#</a></dt>
-<dd><p>a Waveguide is a collection of prim2Dgroups, organized into layers. the refractive index
+<dd><p>a Waveguide is a collection of prim2Ds, organized into layers. the refractive index
 of earlier layers is overwritten by later layers.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wavesolve.waveguide.Waveguide.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prim2Dgroups</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prim2Ds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Waveguide.__init__" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>prim2Dgroups</strong> – a (potentially) nested list of Prim2D objects. Later
+<dd class="field-odd"><p><strong>prim2Ds</strong> – a (potentially) nested list of Prim2D objects. Later
 elements overwrite earlier ones, in terms
 of refractive index.</p>
 </dd>
@@ -802,16 +804,64 @@ inside the closed curve, the primitive has refractive index n.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.boundary_dist">
 <span class="sig-name descname"><span class="pre">boundary_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.boundary_dist" title="Link to this definition">#</a></dt>
-<dd><p>compute the signed distance between the point (x,y) and the boundary of the primitive.
-negative distances -&gt; inside the boundary, while positive -&gt; outside.
-note that this doesn’t need to be exact. the “distance” just needs to be positive outside the boundary,
-negative inside the boundary, and go to 0 as you approach the boundary.
-this is a placeholder - subclasses should implement this function.</p>
+<dd><dl class="simple">
+<dt>compute the signed distance of the point (x,y) to the primitive boundary.</dt><dd><p>this default implementation treats the primitive as a polygon and computes
+the point-edge distance wrt the every edge, then takes the minimum.
+it relies on inside() to convert distance to a signed distance.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – x coordinate of a point</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – y coordinate of a point</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>signed distance to the boundary (negative inside, positive outside)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.dist_map">
+<span class="sig-name descname"><span class="pre">dist_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.dist_map" title="Link to this definition">#</a></dt>
+<dd><p>plot a signed distance map. useful for checking boundary_dist()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bounds</strong> (<em>array</em>) – [xmin,xmax,ymin,ymax] extent of the plot</p></li>
+<li><p><strong>res</strong> (<em>int</em>) – 1D resolution of the plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.inside">
+<span class="sig-name descname"><span class="pre">inside</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.inside" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – x coordinate of a point</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – y coordinate of a point</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>whether or not [x,y] is inside the primitive boundary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(bool)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.make_points">
-<span class="sig-name descname"><span class="pre">make_points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.make_points" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">make_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.make_points" title="Link to this definition">#</a></dt>
 <dd><p>make an Nx2 array of points for marking the primitive boundary,
 according to some args. CCW ordering! this is a placeholder;
 subclasses should implement this function.</p>
@@ -842,12 +892,6 @@ subclasses should implement this function.</p>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wavesolve.waveguide.Prim2D.plot_mesh">
-<span class="sig-name descname"><span class="pre">plot_mesh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2D.plot_mesh" title="Link to this definition">#</a></dt>
-<dd><p>plot a mesh corresponding to this primitive. useful for quickly checking the shape.</p>
 </dd></dl>
 
 </dd></dl>
@@ -938,7 +982,9 @@ subclasses should implement this function.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="wavesolve.waveguide.Prim2DArray">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wavesolve.waveguide.</span></span><span class="sig-name descname"><span class="pre">Prim2DArray</span></span><a class="headerlink" href="#wavesolve.waveguide.Prim2DArray" title="Link to this definition">#</a></dt>
-<dd><p>an array of identical non-intersecting Prim2Ds copied at different locations</p>
+<dd><p>an array of non-intersecting Prim2Ds which share the same material.
+this is functionally equivalent to a list of Prim2D objects, except
+that all the Prim2D objects now share a label.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wavesolve.waveguide.Prim2DArray.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wavesolve.waveguide.Prim2D" title="wavesolve.waveguide.Prim2D"><span class="pre">Prim2D</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wavesolve.waveguide.Prim2DArray.__init__" title="Link to this definition">#</a></dt>
@@ -1050,10 +1096,11 @@ subclasses should implement this function.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D"><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.__init__"><code class="docutils literal notranslate"><span class="pre">Prim2D.__init__()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.boundary_dist"><code class="docutils literal notranslate"><span class="pre">Prim2D.boundary_dist()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.dist_map"><code class="docutils literal notranslate"><span class="pre">Prim2D.dist_map()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.inside"><code class="docutils literal notranslate"><span class="pre">Prim2D.inside()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.make_points"><code class="docutils literal notranslate"><span class="pre">Prim2D.make_points()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.make_poly"><code class="docutils literal notranslate"><span class="pre">Prim2D.make_poly()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.plot_boundary"><code class="docutils literal notranslate"><span class="pre">Prim2D.plot_boundary()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wavesolve.waveguide.Prim2D.plot_mesh"><code class="docutils literal notranslate"><span class="pre">Prim2D.plot_mesh()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes-that-inherit-from-prim2d">classes that inherit from <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code></a><ul class="nav section-nav flex-column">

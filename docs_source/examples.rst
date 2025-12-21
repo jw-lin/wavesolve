@@ -12,3 +12,4 @@ Contents
     PL3
     ellip
     hollowPCF
+    rect

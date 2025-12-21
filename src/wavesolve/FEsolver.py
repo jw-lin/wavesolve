@@ -129,7 +129,7 @@ def solve_waveguide_vec(mesh,wl,IOR_dict,Nmax=6,target_neff=None,solve_mode="mix
 
 #region plotting
 
-def plot_vector_field(mesh,field,show_mesh=False,ax=None,arrows=True,res=100,bounds=None):
+def plot_vector_field(mesh,field,show_mesh=False,ax=None,arrows=True,res=100,bounds=None,dec_factor=4):
     """ plot a vector field - transverse and longitudinal components.
 
     ARGS:
@@ -142,6 +142,7 @@ def plot_vector_field(mesh,field,show_mesh=False,ax=None,arrows=True,res=100,bou
         arrows (bool): whether or not to overplot field arrows
         res (int): grid resolution, make tuple to set xres and yres separately
         bounds: 4-element array [xmin,xmax,ymin,ymax], setting plot boundary.
+        dec_factor (int): decimation factor for arrow plotting
     """
     if bounds is None:
         bounds = get_mesh_bounds(mesh)
@@ -167,7 +168,7 @@ def plot_vector_field(mesh,field,show_mesh=False,ax=None,arrows=True,res=100,bou
 
     im0 = ax[0].imshow(np.linalg.norm(vi_t,axis=2).T,extent=bounds,origin="lower")
     if arrows:
-        ax[0].quiver(dec_2D(xg),dec_2D(yg),dec_2D(vi_t[:,:,0]),dec_2D(vi_t[:,:,1]),color="white",alpha=0.5,width=5/1000)
+        ax[0].quiver(dec_2D(xg,dec_factor),dec_2D(yg,dec_factor),dec_2D(vi_t[:,:,0],dec_factor).T,dec_2D(vi_t[:,:,1],dec_factor).T,color="white",alpha=0.5,width=5/1000)
 
     plt.colorbar(im0,ax=ax[0],fraction=0.046, pad=0.04)
     if show_mesh:

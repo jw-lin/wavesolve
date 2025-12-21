@@ -15,8 +15,10 @@ Below is an example. First we'll make the mesh, which must be order 1 since this
     clad_radius = 15.       # outer boundary radius
     nclad = 1.444           # cladding index
     hole_separation = 4.05  # separation between air holes
+    hole_res = 24           # air hole boundary resolution
+    clad_res = 32           # outer boundary (cladding) resolution
 
-    hollow_PCF = PhotonicBandgapFiber(void_radius,hole_radius,clad_radius,nclad,hole_separation,20,32,hole_mesh_size=1.2,clad_mesh_size=2.)
+    hollow_PCF = PhotonicBandgapFiber(void_radius,hole_radius,clad_radius,nclad,hole_separation,hole_res,clad_res,hole_mesh_size=1.0,clad_mesh_size=2.0)
     m = hollow_PCF.make_mesh(order=1)
     hollow_PCF.plot_mesh(m)
 
@@ -31,16 +33,16 @@ Next, let's solve. The voids in this fiber have index 1, so I will search for mo
     IOR_dict = hollow_PCF.assign_IOR()
     wl = 1.65
 
-    ws,vs = solve_waveguide_vec(m,wl,IOR_dict,target_neff=1.0,Nmax=8)
+    ws,vs = solve_waveguide_vec(m,wl,IOR_dict,target_neff=1.0,Nmax=10)
     ne = get_eff_index(wl,ws)
 
     fig,axs = plt.subplots(2,3,sharey=True,figsize=(10,6))
     for j,ax in enumerate(axs.T.flatten()):
-        i = j+2
+        i = j+3
         plot_vector_field(m,vs[i],ax=ax,bounds=(-8,8,-8,8))
         hollow_PCF.plot_boundaries(ax)
         ax.set_title("mode "+str(i+1)+r": $n_{\rm eff}=$"+str(round(np.real(ne[i]),4)))
 
     plt.show()
 
-After solving for the first 8 modes, I find that modes 5 and 6 are physical, with effective index :math:`\approx 0.995`.
+After solving for the first 10 modes, I find that modes 6 and 7 are physical, with effective index :math:`\approx 0.995`.

@@ -49,7 +49,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Reference" href="reference.html" />
-    <link rel="prev" title="3. Hollow core photonic crystal fiber" href="hollowPCF.html" />
+    <link rel="prev" title="4. Rectangular directional coupler" href="rect.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -160,6 +160,7 @@
 <li class="toctree-l2"><a class="reference internal" href="PL3.html">1. 3-port photonic lantern</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ellip.html">2. Elliptical core fiber</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hollowPCF.html">3. Hollow core photonic crystal fiber</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rect.html">4. Rectangular directional coupler</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Advanced usage</a></li>
@@ -422,34 +423,38 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">label</span></code> : a string identifier to attach to the primitive (e.g. “core” or “cladding”).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">points</span></code> (optional): a 2-element array of <span class="math notranslate nohighlight">\((x,y)\)</span> points corresponding to a material interface. The first and last point are automatically connected. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>, since <code class="docutils literal notranslate"><span class="pre">points</span></code> can also be generated with functional dependence, as mentioned next.</p></li>
 </ol>
-<p>To make custom geometries, define a subclass that inherits from <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> and generate <code class="docutils literal notranslate"><span class="pre">points</span></code> according to specific rules. These subclasses should implement their own <code class="docutils literal notranslate"><span class="pre">make_points()</span></code> functions, which at minimum should take in some set of arguments (like radius, for a circle primitive) and return the corresponding point array <strong>in counterclockwise order</strong>. Subclasses should also implement the following function:</p>
-<p><code class="docutils literal notranslate"><span class="pre">boundary_dist(x,y)</span></code> : compute the signed minimum distance between the point <span class="math notranslate nohighlight">\((x,y)\)</span> and the primitive boundary, which is negative value if the point is inside the boundary.</p>
-<p>See the <code class="docutils literal notranslate"><span class="pre">Circle</span></code>, <code class="docutils literal notranslate"><span class="pre">Ellipse</span></code>, and <code class="docutils literal notranslate"><span class="pre">Rectangle</span></code> classes for examples.</p>
-<p>More complicated primitives can be created through <code class="docutils literal notranslate"><span class="pre">waveguide.Prim2DUnion</span></code>, representing a list of intersecting primitives, and <code class="docutils literal notranslate"><span class="pre">waveguide.Prim2DArray</span></code>, representing a list of non-intersecting primitives.</p>
+<p>To make custom geometries, define a subclass that inherits from <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> and generate <code class="docutils literal notranslate"><span class="pre">points</span></code> according to specific rules. These subclasses should implement their own <code class="docutils literal notranslate"><span class="pre">make_points()</span></code> functions, which at minimum should take in some set of arguments (like radius, for a circle primitive) and return the corresponding point array <strong>in counterclockwise order</strong>.</p>
+<p>To complete the subclass, you must also implement a function <code class="docutils literal notranslate"><span class="pre">inside(x,y)</span></code> which returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the point <code class="docutils literal notranslate"><span class="pre">[x,y]</span></code> is inside the primitive, and <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise. This function is used to compute the signed distance to the primitive boundary via the function <code class="docutils literal notranslate"><span class="pre">boundary_dist(x,y)</span></code>, and is required for adaptive meshing.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">points</span></code> should always be ordered counterclockwise!</p>
+<p>The default behavior of <code class="docutils literal notranslate"><span class="pre">boundary_dist(x,y)</span></code> is to compute the distance between <code class="docutils literal notranslate"><span class="pre">[x,y]</span></code> and <em>every</em> line segment in the primitive boundary, then take the minimum value and apply the correct the sign with <code class="docutils literal notranslate"><span class="pre">inside(x,y)</span></code>. This is not particularly efficient, so if you find later that meshing is slow, you might consider writing a custom boundary distance function.</p>
 </div>
+<p>See the <code class="docutils literal notranslate"><span class="pre">Circle</span></code>, <code class="docutils literal notranslate"><span class="pre">Ellipse</span></code>, and <code class="docutils literal notranslate"><span class="pre">Rectangle</span></code> classes for examples.</p>
+<p>More complicated primitives can be created through <code class="docutils literal notranslate"><span class="pre">waveguide.Prim2DUnion</span></code>, representing a list of intersecting primitives, and <code class="docutils literal notranslate"><span class="pre">waveguide.Prim2DArray</span></code>, representing a list of non-intersecting primitives.</p>
 </section>
 <section id="waveguide-construction">
 <h3><code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> construction<a class="headerlink" href="#waveguide-construction" title="Link to this heading">#</a></h3>
-<p>A <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> stores a (potentially nested) list of <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects, which I will call <code class="docutils literal notranslate"><span class="pre">prim2Dgroups</span></code>. The refractive index profile of each top-level element in <code class="docutils literal notranslate"><span class="pre">prim2Dgroups</span></code> is overwritten by the immediate next element. An element in <code class="docutils literal notranslate"><span class="pre">prim2Dgroups</span></code> can also be a list of <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects; in this case all elements in the sublist override the refractive index profile of the previous element. <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> So, an optical fiber might store its primitives as <code class="docutils literal notranslate"><span class="pre">[cladding,core]</span></code>, where <code class="docutils literal notranslate"><span class="pre">cladding</span></code> and <code class="docutils literal notranslate"><span class="pre">core</span></code> are <code class="docutils literal notranslate"><span class="pre">Circle(Prim2D)</span></code> objects corresponding to the cladding and core regions; a multicore fiber could have the structure <code class="docutils literal notranslate"><span class="pre">[cladding,[core1,core2,...]]</span></code>. A <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> is initialized as</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wvg</span> <span class="o">=</span> <span class="n">Waveguide</span><span class="p">(</span><span class="n">prim2Dgroups</span><span class="p">)</span>
+<p>A <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> stores a (potentially nested) list of <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects, which I will call <code class="docutils literal notranslate"><span class="pre">prim2Ds</span></code>. The refractive index profile of each top-level element in <code class="docutils literal notranslate"><span class="pre">prim2Ds</span></code> is overwritten by the immediate next element. An element in <code class="docutils literal notranslate"><span class="pre">prim2Ds</span></code> can also be a list of <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects; in this case all elements in the sublist override the refractive index profile of the previous element. <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> So, an optical fiber might store its primitives as <code class="docutils literal notranslate"><span class="pre">[cladding,core]</span></code>, where <code class="docutils literal notranslate"><span class="pre">cladding</span></code> and <code class="docutils literal notranslate"><span class="pre">core</span></code> are <code class="docutils literal notranslate"><span class="pre">Circle(Prim2D)</span></code> objects corresponding to the cladding and core regions; a multicore fiber could have the structure <code class="docutils literal notranslate"><span class="pre">[cladding,[core1,core2,...]]</span></code>. A <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> is initialized as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wvg</span> <span class="o">=</span> <span class="n">Waveguide</span><span class="p">(</span><span class="n">prim2Ds</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Arguments</strong></p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">prim2Dgroups</span></code> : the potentially nested list of 2D primitives mentioned above.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prim2Ds</span></code> : the potentially nested list of 2D primitives mentioned above.</p></li>
 </ol>
 <p>All <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> objects take multiple <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects and arrange them as desired in this list. The <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> class is mainly used to generate meshes, which can be tuned via <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> class attributes, as will be shown in the next section. For example <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> subclasses, check out the <code class="docutils literal notranslate"><span class="pre">CircularFiber</span></code>, <code class="docutils literal notranslate"><span class="pre">EllipticalFiber</span></code>, and various photonic-lantern-related classes.</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="id2" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects in the same sublist should never intersect. However, they can have different <code class="docutils literal notranslate"><span class="pre">label</span></code>s and refractive indices. If you want to model intersecting primitives, you should make a <code class="docutils literal notranslate"><span class="pre">Prim2DUnion</span></code>. See <a class="reference internal" href="PL3.html"><span class="doc">3-port photonic lantern</span></a>  for an example.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> objects in the same sublist should never intersect. If you want to model intersecting primitives, you should make a <code class="docutils literal notranslate"><span class="pre">Prim2DUnion</span></code>. See <a class="reference internal" href="PL3.html"><span class="doc">3-port photonic lantern</span></a>  for an example.</p>
 </aside>
 </aside>
 <p>Once the waveguide is initialized, you can get the refractive index dictionary of the waveguide with <code class="docutils literal notranslate"><span class="pre">Waveguide.assign_IOR()</span></code>. This is what passes material information to the eigensolver.</p>
 <p>A useful plotting method for checking your work is <code class="docutils literal notranslate"><span class="pre">Waveguide.plot_boundaries()</span></code>, which plots all material boundaries in waveguide.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The outer boundary of the simulation domain is set by the <strong>first</strong> primitive in <code class="docutils literal notranslate"><span class="pre">prim2Ds</span></code>. This boundary needs to extend far enough so that the field of the guided modes is (close to) 0 at the boundary. If the outer boundary is too small, results will be inaccurate.</p>
+</div>
 </section>
 </section>
 <section id="mesh-generation">
@@ -466,7 +471,7 @@ document.write(`
 </ol>
 <p>Adaptive meshing is slower but tends to give more accurate meshes and ultimately faster solve times. In adaptive meshing mode, the target triangle size at a given <span class="math notranslate nohighlight">\((x,y)\)</span> point is computed as</p>
 <div class="math notranslate nohighlight">
-\[{\rm target \, size} = d_0\left(1+ \dfrac{s \, d(x,y)}{d_0} \right)^p\]</div>
+\[{\rm target \, size} = d_0\left(1+ \left[\dfrac{s \, d(x,y)}{d_0}\right]^p \right)\]</div>
 <p>where <span class="math notranslate nohighlight">\(d_0\)</span> is the “default” mesh size corresponding to the resolution of the <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> boundary, <span class="math notranslate nohighlight">\(d(x,y)\)</span> is the distance between the point <span class="math notranslate nohighlight">\((x,y)\)</span> and the primitive’s boundary, and <span class="math notranslate nohighlight">\(s\)</span> and <span class="math notranslate nohighlight">\(p\)</span> are variables; higher values mean that mesh size will increase more rapidly away from the boundary. For multiple primitives, a target size is computed for each and the minimum size is taken. Then the target size is clipped between a minimum and maximum allowed value. The parameter values for the adaptive scheme are set through the following <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> class attributes:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_dist_scale</span></code> : <span class="math notranslate nohighlight">\(s\)</span>, the mesh boundary refinement linear distance scaling. Default <code class="docutils literal notranslate"><span class="pre">0.25</span></code></p></li>
@@ -477,7 +482,7 @@ document.write(`
 <p>Users can also specify a target mesh size, and toggle boundary refinement on a per-primitive basis. This is done through the following <code class="docutils literal notranslate"><span class="pre">Prim2D</span></code> attributes:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_size</span></code> : target mesh size within the boundary of the primitive (otherwise the mesh size is set by the scheme described above.)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">skip_refinement</span></code> : whether or not mesh refinement should be applied at the primitive boundary. The outer boundary of the entire mesh should have this set to <code class="docutils literal notranslate"><span class="pre">True</span></code>; default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skip_refinement</span></code> : whether or not mesh refinement should be applied at the primitive boundary; default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 <p>To view meshes, the <code class="docutils literal notranslate"><span class="pre">Waveguide</span></code> class implements</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Waveguide</span><span class="o">.</span><span class="n">plot_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">IOR_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -655,12 +660,12 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hollowPCF.html"
+       href="rect.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">3. </span>Hollow core photonic crystal fiber</p>
+        <p class="prev-next-title"><span class="section-number">4. </span>Rectangular directional coupler</p>
       </div>
     </a>
     <a class="right-next"

@@ -25,35 +25,38 @@ The basic parent class that represents a refractive index geometry is a ``Prim2D
 
 3. ``points`` (optional): a 2-element array of :math:`(x,y)` points corresponding to a material interface. The first and last point are automatically connected. Default is ``None``, since ``points`` can also be generated with functional dependence, as mentioned next.  
 
-To make custom geometries, define a subclass that inherits from ``Prim2D`` and generate ``points`` according to specific rules. These subclasses should implement their own ``make_points()`` functions, which at minimum should take in some set of arguments (like radius, for a circle primitive) and return the corresponding point array **in counterclockwise order**. Subclasses should also implement the following function:
+To make custom geometries, define a subclass that inherits from ``Prim2D`` and generate ``points`` according to specific rules. These subclasses should implement their own ``make_points()`` functions, which at minimum should take in some set of arguments (like radius, for a circle primitive) and return the corresponding point array **in counterclockwise order**. 
 
-``boundary_dist(x,y)`` : compute the signed minimum distance between the point :math:`(x,y)` and the primitive boundary, which is negative value if the point is inside the boundary. 
+To complete the subclass, you must also implement a function ``inside(x,y)`` which returns ``True`` if the point ``[x,y]`` is inside the primitive, and ``False`` otherwise. This function is used to compute the signed distance to the primitive boundary via the function ``boundary_dist(x,y)``, and is required for adaptive meshing. 
+
+.. note::
+    The default behavior of ``boundary_dist(x,y)`` is to compute the distance between ``[x,y]`` and *every* line segment in the primitive boundary, then take the minimum value and apply the correct the sign with ``inside(x,y)``. This is not particularly efficient, so if you find later that meshing is slow, you might consider writing a custom boundary distance function.
 
 See the ``Circle``, ``Ellipse``, and ``Rectangle`` classes for examples. 
 
 More complicated primitives can be created through ``waveguide.Prim2DUnion``, representing a list of intersecting primitives, and ``waveguide.Prim2DArray``, representing a list of non-intersecting primitives.
 
-.. note::
-    ``points`` should always be ordered counterclockwise!
-
 ``Waveguide`` construction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A ``Waveguide`` stores a (potentially nested) list of ``Prim2D`` objects, which I will call ``prim2Dgroups``. The refractive index profile of each top-level element in ``prim2Dgroups`` is overwritten by the immediate next element. An element in ``prim2Dgroups`` can also be a list of ``Prim2D`` objects; in this case all elements in the sublist override the refractive index profile of the previous element. [1]_ So, an optical fiber might store its primitives as ``[cladding,core]``, where ``cladding`` and ``core`` are ``Circle(Prim2D)`` objects corresponding to the cladding and core regions; a multicore fiber could have the structure ``[cladding,[core1,core2,...]]``. A ``Waveguide`` is initialized as ::
+A ``Waveguide`` stores a (potentially nested) list of ``Prim2D`` objects, which I will call ``prim2Ds``. The refractive index profile of each top-level element in ``prim2Ds`` is overwritten by the immediate next element. An element in ``prim2Ds`` can also be a list of ``Prim2D`` objects; in this case all elements in the sublist override the refractive index profile of the previous element. [1]_ So, an optical fiber might store its primitives as ``[cladding,core]``, where ``cladding`` and ``core`` are ``Circle(Prim2D)`` objects corresponding to the cladding and core regions; a multicore fiber could have the structure ``[cladding,[core1,core2,...]]``. A ``Waveguide`` is initialized as ::
 
-    wvg = Waveguide(prim2Dgroups)
+    wvg = Waveguide(prim2Ds)
 
 **Arguments** 
 
-1.  ``prim2Dgroups`` : the potentially nested list of 2D primitives mentioned above.
+1.  ``prim2Ds`` : the potentially nested list of 2D primitives mentioned above.
 
 All ``Waveguide`` objects take multiple ``Prim2D`` objects and arrange them as desired in this list. The ``Waveguide`` class is mainly used to generate meshes, which can be tuned via ``Waveguide`` class attributes, as will be shown in the next section. For example ``Waveguide`` subclasses, check out the ``CircularFiber``, ``EllipticalFiber``, and various photonic-lantern-related classes.
 
-.. [1] ``Prim2D`` objects in the same sublist should never intersect. However, they can have different ``label``\ s and refractive indices. If you want to model intersecting primitives, you should make a ``Prim2DUnion``. See :doc:`PL3`  for an example.
+.. [1] ``Prim2D`` objects in the same sublist should never intersect. If you want to model intersecting primitives, you should make a ``Prim2DUnion``. See :doc:`PL3`  for an example.
 
 Once the waveguide is initialized, you can get the refractive index dictionary of the waveguide with ``Waveguide.assign_IOR()``. This is what passes material information to the eigensolver.
 
 A useful plotting method for checking your work is ``Waveguide.plot_boundaries()``, which plots all material boundaries in waveguide.
+
+.. note::
+    The outer boundary of the simulation domain is set by the **first** primitive in ``prim2Ds``. This boundary needs to extend far enough so that the field of the guided modes is (close to) 0 at the boundary. If the outer boundary is too small, results will be inaccurate.
 
 Mesh generation
 ---------------
@@ -72,7 +75,7 @@ Adaptive meshing is slower but tends to give more accurate meshes and ultimately
 
 .. math::
     
-    {\rm target \, size} = d_0\left(1+ \dfrac{s \, d(x,y)}{d_0} \right)^p
+    {\rm target \, size} = d_0\left(1+ \left[\dfrac{s \, d(x,y)}{d_0}\right]^p \right)
 
 where :math:`d_0` is the "default" mesh size corresponding to the resolution of the ``Prim2D`` boundary, :math:`d(x,y)` is the distance between the point :math:`(x,y)` and the primitive's boundary, and :math:`s` and :math:`p` are variables; higher values mean that mesh size will increase more rapidly away from the boundary. For multiple primitives, a target size is computed for each and the minimum size is taken. Then the target size is clipped between a minimum and maximum allowed value. The parameter values for the adaptive scheme are set through the following ``Waveguide`` class attributes:
 
@@ -84,7 +87,7 @@ where :math:`d_0` is the "default" mesh size corresponding to the resolution of 
 Users can also specify a target mesh size, and toggle boundary refinement on a per-primitive basis. This is done through the following ``Prim2D`` attributes: 
 
 * ``mesh_size`` : target mesh size within the boundary of the primitive (otherwise the mesh size is set by the scheme described above.)
-* ``skip_refinement`` : whether or not mesh refinement should be applied at the primitive boundary. The outer boundary of the entire mesh should have this set to ``True``; default ``False``.
+* ``skip_refinement`` : whether or not mesh refinement should be applied at the primitive boundary; default ``False``.
 
 To view meshes, the ``Waveguide`` class implements ::
 

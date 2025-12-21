@@ -4,7 +4,7 @@ wavesolve.waveguide
     :local:
     :depth: 1
 
-This page contains the documentation for the ``waveguide`` submodule, which functionally defines different kinds of waveguides, enables the creation of custom waveguides, and handles mesh generation for finite element analysis.
+This page contains the documentation for the ``waveguide`` submodule, which defines different kinds of waveguides, enables the creation of custom waveguides, and handles mesh generation for finite element analysis.
 
 ^^^^^^^^^^^^^^^^^^^
 Waveguide class
@@ -43,7 +43,7 @@ Prim2D class
 
 .. autoclass:: wavesolve.waveguide.Prim2D
     :members:
-    :exclude-members: get_nearest_bp_idx
+    :exclude-members: get_nearest_bp_idx, __str__, sgn_inside
     :member-order: groupwise
 
 """""""""""""""""""""""""""""""""""""""

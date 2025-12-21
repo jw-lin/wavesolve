@@ -43,27 +43,43 @@ def get_unique_edges(mesh,mutate=True):
 
 def intersect(a,b,c,d):
     # credit to stackoverflow guy
-    # stuff for line 1
     a1 = b[1]-a[1]
     b1 = a[0]-b[0]
     c1 = a1*a[0] + b1*a[1]
-
-    # stuff for line 2
     a2 = d[1]-c[1]
     b2 = c[0]-d[0]
     c2 = a2*c[0] + b2*c[1]
-
     det = a1*b2 - a2*b1
-
     if (det== 0):
-        # Return (infinity, infinity) if they never intersect
-        # By "never intersect", I mean that the lines are parallel to each other
         return np.inf, np.inf
     else:
         x = (b2*c1 - b1*c2)/det
         y = (a1*c2 - a2*c1)/det
         return x,y
 
+def pt_edge_dist(p,a,b):
+    """ compute distance between point p and line segment with points a and b.
+        a and b may also be Nx2 arrays corresponding to N edges.
+    """
+    if a.ndim == 1:
+        ab = b - a
+        ap = p - a
+        squared_length_ab = np.dot(ab, ab)
+        if squared_length_ab == 0:
+            return np.linalg.norm(p - a)
+        t = np.dot(ap, ab) / squared_length_ab
+        closest = a + np.clip(t,0,1) * ab
+        distance = np.linalg.norm(p - closest)
+        return distance
+    else:
+        ab = b - a
+        ap = p[None,:] - a
+        squared_length_ab = np.sum(ab*ab,axis=1)
+        t = np.sum(ap*ab,axis=1) / squared_length_ab
+        closest = a + np.clip(t,0,1)[:,None] * ab
+        distance = np.linalg.norm(p[None,:] - closest,axis=1)
+        return distance
+    
 def plot_mesh(mesh,IOR_dict=None,alpha=0.3,ax=None,plot_points=True):
     """ plot a mesh and associated refractive index distribution
     Args:
@@ -217,6 +233,9 @@ class Prim2D:
         self.mesh_size = None # set to a numeric value to force a triangle size within the closed region
         self.skip_refinement = False
     
+    def __str__(self):
+        return type(self).__name__+"('"+self.label+"')"
+
     def make_poly(self,geom):
         """ convert self.points into a Gmsh polygon
 
@@ -230,29 +249,72 @@ class Prim2D:
             poly = geom.add_polygon(self.points)
         return poly
 
-    def make_points(self):
+    def make_points(self,args):
         """ make an Nx2 array of points for marking the primitive boundary,
             according to some args. CCW ordering! this is a placeholder; 
             subclasses should implement this function.
         """
-        return self.points
+        raise NotImplementedError         
 
-    def plot_mesh(self):
-        """ plot a mesh corresponding to this primitive. useful for quickly checking the shape. """
-        with pygmsh.occ.Geometry() as geom:
-            poly = self.make_poly(geom)
-            geom.add_physical(poly,"poly")
-            m = geom.generate_mesh(2,2,6)
-        plot_mesh(m)            
+    def inside(self,x,y):
+        """
+        ARGS:
+            x (float): x coordinate of a point
+            y (float): y coordinate of a point
+        
+        RETURNS:
+            (bool) : whether or not [x,y] is inside the primitive boundary
+        """
+        raise NotImplementedError
+    
+    def sgn_inside(self,x,y):
+        if self.inside(x,y):
+            return -1
+        return 1
 
     def boundary_dist(self,x,y):
-        """ compute the signed distance between the point (x,y) and the boundary of the primitive. 
-            negative distances -> inside the boundary, while positive -> outside.
-            note that this doesn't need to be exact. the "distance" just needs to be positive outside the boundary, 
-            negative inside the boundary, and go to 0 as you approach the boundary. 
-            this is a placeholder - subclasses should implement this function.
+        """ compute the signed distance of the point (x,y) to the primitive boundary.
+            this default implementation treats the primitive as a polygon and computes
+            the point-edge distance wrt the every edge, then takes the minimum. 
+            it relies on inside() to convert distance to a signed distance.
+
+        ARGS:
+            x (float): x coordinate of a point
+            y (float): y coordinate of a point
+        
+        RETURNS:
+            (float) : signed distance to the boundary (negative inside, positive outside)
         """
-        pass
+        if hasattr(self,"boundary_pts"):
+            points = self.boundary_pts
+        else:
+            points = self.points
+        
+        pts1 = points
+        pts2 = np.roll(points,1,0)
+        dists = pt_edge_dist(np.array([x,y]),pts1,pts2)
+        #dists = np.array([pt_edge_dist(np.array([x,y]),pts1[i],pts2[i]) for i in range(points.shape[0])])  #
+        return np.min(dists)*self.sgn_inside(x,y)
+    
+    def dist_map(self,bounds,res=50):
+        """ plot a signed distance map. useful for checking boundary_dist()
+        
+        ARGS:
+            bounds (array): [xmin,xmax,ymin,ymax] extent of the plot
+            res (int): 1D resolution of the plot
+        """
+        xa = np.linspace(bounds[0],bounds[1],res)
+        ya = np.linspace(bounds[2],bounds[3],res)
+        dists = np.empty((res,res))
+        fig,ax = plt.subplots(1,1)
+        ax.set_aspect('equal')
+        for i in range(res):
+            for j in range(res):
+                dists[i,j] = self.boundary_dist(xa[i],ya[j])
+        im = ax.imshow(dists.T,origin="lower",extent=bounds)
+        self.plot_boundary(ax)
+        plt.colorbar(im,ax=ax)
+        plt.show()
 
     def get_nearest_bp_idx(self,point):
         """ get the nearest boundary point index for a given point """
@@ -305,6 +367,9 @@ class Circle(Prim2D):
         self.points = points
         return points
     
+    def inside(self, x, y):
+        return self.boundary_dist(x,y) < 0
+
     def boundary_dist(self, x, y):
         return np.sqrt(np.power(x-self.center[0],2)+np.power(y-self.center[1],2)) - self.radius
 
@@ -325,15 +390,21 @@ class Rectangle(Prim2D):
         self.center = [(xmin+xmax)/2,(ymin+ymax)/2]
         return points
 
-    def boundary_dist(self, x, y):
-        bounds = self.bounds
-        xdist = min(abs(bounds[0]-x),abs(bounds[1]-x))
-        ydist = min(abs(bounds[2]-y),abs(bounds[3]-y))
-        dist = min(xdist,ydist)
-        if bounds[0]<=x<=bounds[1] and bounds[2]<=y<=bounds[3]:
-            return -dist
-        return dist
-    
+    def inside(self,x,y):
+        if (self.bounds[0]<=x<=self.bounds[1]) and (self.bounds[2]<=y<=self.bounds[3]):
+            return True
+        return False
+
+    def boundary_dist(self,x,y):
+        # i got this from gemini ...
+        p = np.array([x,y])
+        c = np.array(self.center)
+        sz = np.array([self.bounds[1]-self.bounds[0],self.bounds[3]-self.bounds[2]])/2.
+        d = np.abs(p - c) - sz
+        outside_dist = np.linalg.norm(np.maximum(d, 0.0))
+        inside_dist = np.maximum(d[0], d[1]) if np.any(d < 0) else 0.0
+        return outside_dist + np.minimum(inside_dist, 0.0)
+
 class Ellipse(Prim2D):
     """axis-aligned ellipse. a is the semi-axis along x, b is the semi-axis along y."""
     def make_points(self,a,b,res,center=(0,0)):
@@ -355,6 +426,9 @@ class Ellipse(Prim2D):
         self.center = center
         self.points = points
         return points
+
+    def inside(self, x, y):
+        return self.boundary_dist(x,y) < 0
 
     def boundary_dist(self, x, y):
         return ellipse_dist(self.a,self.b,self.center,[x,y])
@@ -385,13 +459,9 @@ class Prim2DUnion(Prim2D):
     
     def inside(self,x,y):
         for p in self.ps:
-            if p.boundary_dist(x,y)<=0:
-                return -1
-        return 1
-
-    def boundary_dist(self,x,y): 
-        # yes, there is probably some more general way to compute distance to boundary of an arbitrary union of polygons...
-        return np.min(np.sqrt((np.power(self.boundary_pts[:,0]-x,2) + np.power(self.boundary_pts[:,1]-y,2)))) * self.inside(x,y)
+            if p.inside(x,y):
+                return True
+        return False
 
     def make_poly(self,geom):
         if hasattr(self.points[0][0],'__len__'):
@@ -457,7 +527,10 @@ class Prim2DUnion(Prim2D):
         return np.array(boundary_pts)
 
 class Prim2DArray(Prim2D):
-    """an array of identical non-intersecting Prim2Ds copied at different locations """
+    """ an array of non-intersecting Prim2Ds which share the same material.
+        this is functionally equivalent to a list of Prim2D objects, except
+        that all the Prim2D objects now share a label.
+    """
     def __init__(self,ps:list[Prim2D],label):
         """
         ARGS:
@@ -466,18 +539,13 @@ class Prim2DArray(Prim2D):
         """
         ns = [p.n for p in ps]
         assert np.all(np.array(ns)==ns[0]),"primitives must have the same refractive index"
-        for p in ps:
-            assert hasattr(p,'center'), "all primitives must have a defined center point"
-
         super().__init__(ps[0].n,label,[p.points for p in ps])
         self.ps = ps
-        self.centers = np.array([p.center for p in ps])
         self.label = label
     
     def boundary_dist(self, x, y):
-        dist_to_centers = np.sqrt( np.power(x- self.centers[:,0],2)+np.power(y- self.centers[:,1],2))
-        idx = np.argmin(dist_to_centers)
-        return self.ps[idx].boundary_dist(x,y)
+        dists = [p.boundary_dist(x,y) for p in self.ps]
+        return np.min(dists)
 
     def make_poly(self,geom):
         polys = [geom.add_polygon(p) for p in self.points]
@@ -499,7 +567,7 @@ class Prim2DArray(Prim2D):
 #region Waveguide
         
 class Waveguide:
-    """ a Waveguide is a collection of prim2Dgroups, organized into layers. the refractive index 
+    """ a Waveguide is a collection of prim2Ds, organized into layers. the refractive index 
     of earlier layers is overwritten by later layers.
     """
 
@@ -515,15 +583,15 @@ class Waveguide:
     #: float: maximum allowed mesh size
     max_mesh_size = 10.
 
-    def __init__(self,prim2Dgroups):
+    def __init__(self,prim2Ds):
         """
         ARGS:
-            prim2Dgroups: a (potentially) nested list of Prim2D objects. Later
+            prim2Ds: a (potentially) nested list of Prim2D objects. Later
                           elements overwrite earlier ones, in terms
                           of refractive index.
         """
 
-        self.prim2Dgroups = prim2Dgroups # an arrangement of Prim2D objects, stored as a (potentially nested) list. each element is overwritten by the next.
+        self.prim2Dgroups = prim2Ds # an arrangement of Prim2D objects, stored as a (potentially nested) list. each element is overwritten by the next.
         self.IOR_dict = {}
         
         primsflat = [] # flat array of primitives
@@ -535,6 +603,7 @@ class Waveguide:
                 primsflat.append(p)  
         
         self.primsflat = primsflat
+        self.primsflat[0].skip_refinement = True
 
     def make_mesh(self,algo=6,order=2,adaptive=True):
         """ Construct a mesh with boundary refinement at material interfaces
@@ -609,7 +678,6 @@ class Waveguide:
             min_size (float): the minimum mesh size that the algorithm can choose
             max_size (float): the maximum mesh size that the algorithm can chooose
         """
-        
         prims = self.primsflat
         dists = np.zeros(len(prims)) # compute a distance to each primitive boundary
         for i,p in enumerate(prims): 
@@ -621,11 +689,15 @@ class Waveguide:
         mesh_sizes = np.zeros(len(prims))
         for i,d in enumerate(dists): 
             p = prims[i]
-            if hasattr(p.points[0][0],'__len__'):
-                boundary_mesh_size = np.sqrt((p.points[0][0][0]-p.points[0][1][0])**2 + (p.points[0][0][1]-p.points[0][1][1])**2) 
+            if hasattr(p,'boundary_pts'):
+                boundary_mesh_size = dist(p.boundary_pts[0],p.boundary_pts[1])
             else:
-                boundary_mesh_size = np.sqrt((p.points[0][0]-p.points[1][0])**2 + (p.points[0][1]-p.points[1][1])**2) 
-            scaled_size = np.power(1+np.abs(d)/boundary_mesh_size *_scale ,_power) * boundary_mesh_size # this goes to boundary_mesh_size as d->0, and increases as d->inf for _power>0
+                boundary_mesh_size = dist(p.points[0],p.points[1])
+
+            if p.mesh_size is not None:
+                boundary_mesh_size = min(boundary_mesh_size,p.mesh_size)  
+
+            scaled_size = (1+np.power(np.abs(d)/boundary_mesh_size *_scale ,_power)) * boundary_mesh_size # this goes to boundary_mesh_size as d->0, and increases as d->inf for _power>0
             if d<=0 and p.mesh_size is not None:
                 mesh_sizes[i] = min(scaled_size,p.mesh_size)
             else:
@@ -1185,9 +1257,6 @@ class MCFPhotonicLantern(Waveguide):
         # Initialize waveguide with layers
         super().__init__([jacket, cladding, core_array])
 
-        # Override mesh parameters for better lantern meshing
-        self.mesh_dist_scale = 0.5
-        self.mesh_dist_power = 1.2
         self.min_mesh_size = min(r_core/4, 0.1)
         self.max_mesh_size = r_clad/5
 
