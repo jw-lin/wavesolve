@@ -13,7 +13,7 @@ function solve_scalar(A::Symmetric{Float64, SparseMatrixCSC{Float64, Int64}},B::
         w,v = eigs(A, B, which=:LM,nev=Nmax,sigma=est_eigval,explicittransform=:none)
     elseif solve_mode == "dense"
         A,B = Array(A),Array(B)
-        w,v = eigs(A, B, which=:LM,nev=Nmax,sigma=est_eigval,explicittransform=:none)
+        w,v = eigen(Symmetric(A),Symmetric(B),sortby=-)
     else
         w = nothing
         v = nothing
@@ -21,19 +21,30 @@ function solve_scalar(A::Symmetric{Float64, SparseMatrixCSC{Float64, Int64}},B::
     return w,v
 end
 
-function solve_vector(A::SparseMatrixCSC{Float64, Int64},B::Union{SparseMatrixCSC{Float64, Int64},SparseMatrixCSC{ComplexF64, Int64}},est_eigval::Float64,Nmax::Int64,solve_mode::String)
+function solve_vector(A::T,B::T,est_eigval::Float64,Nmax::Int64,solve_mode::String ; v0::Union{Vector{Float64},Nothing}=nothing) where T <: Union{SparseMatrixCSC{Float64, Int64},SparseMatrixCSC{ComplexF64, Int64}}
     # some notes:
     # A and B are real symmetric
     # B is indefinite, so plugging into eigs directly doesn't work
     # density of C matrix is near 1
-    if solve_mode == "mixed"
+    # smallest mag search doesn't work for shift-invert problem, only smallest real
+    
+    if solve_mode == "sparse"
+        w,v = eigs(Symmetric(A),Symmetric(B),which=:LM,nev=Nmax,v0=v0)
+        w .= est_eigval .- (est_eigval ./ w)
+    elseif solve_mode == "schur"
+        F = schur(Symmetric(Array(A)),Symmetric(Array(B)))
+        v = F.right
+        w = F.α ./ F.β
+        p = sortperm(w, by=real, rev=true)
+        w,v = w[p],v[:,p]
+    elseif solve_mode == "mixed"
         C = (A .- est_eigval*B) \ Array(B)
         w,v = eigs(C,which=:SR,nev=Nmax)
         w = est_eigval .+ (1 ./ w) 
     elseif solve_mode == "dense"
         A,B = Array(A),Array(B)
         C = (A .- est_eigval*B) \ B
-        w,v = eigs(C,which=:SR,nev=Nmax)
+        w,v = eigen(C,sortby=real)
         w = est_eigval .+ (1 ./ w) 
     else
         w = nothing
@@ -53,11 +64,12 @@ end
 
 function solve_waveguide_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::PyArray{Float64,1}, k2::Float64,Nedges::Int64, est_eigval::Float64,Nmax::Int64 ; solve_mode::String = "mixed")
     if solve_mode == "sparse"
-        A,B = construct_AB_vec(points,tris,edges,pyconvert(Vector{Float64},IORs),k2,Nedges,complex=true)
+        A,B,v0 = construct_AB_vec(points,tris,edges,pyconvert(Vector{Float64},IORs),k2,Nedges,shift=est_eigval)
+        w,v = solve_vector(A,B,est_eigval,Nmax,solve_mode,v0=v0)
     else
-        A,B = construct_AB_vec(points,tris,edges,pyconvert(Vector{Float64},IORs),k2,Nedges)
+        A,B,v0 = construct_AB_vec(points,tris,edges,pyconvert(Vector{Float64},IORs),k2,Nedges)
+        w,v = solve_vector(A,B,est_eigval,Nmax,solve_mode)
     end
-    w,v = solve_vector(A,B,est_eigval,Nmax,solve_mode)
     return w,v
 end
 
@@ -113,7 +125,7 @@ end
 
 #region matrices, vector
 
-function construct_AB_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::Array{Float64,1}, k2::Float64,Nedges::Int64 ; complex::Bool=false)
+function construct_AB_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::Array{Int64,2},IORs::Array{Float64,1}, k2::Float64,Nedges::Int64 ; shift::Union{Float64,Nothing}=nothing)
     Ntt = Nedges
     Nzz = size(points,2)
     N = Ntt + Nzz
@@ -150,24 +162,35 @@ function construct_AB_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::
     # Att, Btt, Bzz are sym
     # overall B is also sym, since Btz = Bzt'
     # so we technically don't need to fill all the entries
-    # but the pardiso solver requires a dense B array anyways
 
     # order is tt tz zt zz
     Is = [Is_t ; Is_t ; Is_z .+ Ntt ; Is_z .+ Ntt]
     Js = [Js_t ; Js_z .+ Ntt ; Js_t ; Js_z .+ Ntt]
+    v0 = nothing
 
-    # order is tt zt zz
-    #Is = [Is_t ; Is_z .+ Ntt ; Is_z .+ Ntt]
-    #Js = [Js_t ; Js_t ; Js_z .+ Ntt]
-    A = sparse(Is_t,Js_t,Att,N,N)
-    if complex
-        B = sparse(Is,Js,[Btt ; -1im*Btz ; 1im*Bzt ; Bzz],N,N)
+    if !isnothing(shift)
+        #Att ./= shift
+        #Btt ./= shift
+        #Btz ./= sqrt(shift)
+        #Bzt ./= sqrt(shift)
+        #Btz = ComplexF64.(Btz) * -1im
+        #Bzt = ComplexF64.(Bzt) * 1im
+
+        #transformed version from Lee et al 1991
+        A = sparse(Is,Js,[Btt ; Btz  ; Bzt  ; Bzz],N,N)
+        B = sparse(Is,Js,[ (Btt .- (Att ./ shift))  ;  Btz ;  Bzt  ; Bzz],N,N)
+        
+        y = [ones(Float64,Ntt);zeros(Float64,Nzz)]
+        v0 = B \ y
+        #A = sparse(Is_t,Js_t,Att,N,N)
+        #B = sparse(Is,Js,[Btt ; Btz ; Bzt ; Bzz],N,N)
     else
+        A = sparse(Is_t,Js_t,Att,N,N)
         B = sparse(Is,Js,[Btt ; Btz ; Bzt ; Bzz],N,N)
     end
     
     #B = sparse(Is,Js,[Btt ; Bzt ; Bzz],N,N)
-    return A,B
+    return A,B,v0
 end
 #endregion
 

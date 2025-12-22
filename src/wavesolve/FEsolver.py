@@ -96,7 +96,10 @@ def solve_waveguide_vec(mesh,wl,IOR_dict,Nmax=6,target_neff=None,solve_mode="mix
             - eigvecs: array of corresponding eigenvectors (waveguide modes)
     """
     assert get_mesh_order(mesh) == 1, "only order 1 meshes supported for vectorial solving"
-    assert solve_mode in ["mixed","dense"], "solve_mode must be 'mixed' or 'dense' (default 'mixed')."
+    assert solve_mode in ["sparse","schur","mixed","dense"], "solve_mode must be 'mixed' or 'dense' (default 'mixed')."
+
+    if solve_mode == "sparse":
+        print("you are using 'sparse' solve_mode for vector mode solving.\nyou probably shouldn't be using this mode, it's a work in progress")
 
     # sort the mesh if necessary
     if not hasattr(mesh,"tree"):

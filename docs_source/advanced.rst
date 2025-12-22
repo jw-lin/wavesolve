@@ -122,6 +122,10 @@ Scalar eigenmodes can be solved on **both** order 1 and order 2 meshes. In eithe
 1. ``eigvals``: array of **real** eigenvalues, descending order
 2. ``eigvecs``: array of **real** vector-valued eigenmodes
 
+.. note::
+
+    If ``solve_mode='dense'``, *all* eigenvalue-eigenvector pairs will be returned, and ``Nmax`` is ignored.
+
 To count the number of guided modes, use ::
 
     num_modes = FEsolver.count_modes(eigvals,wl,IOR_dict)

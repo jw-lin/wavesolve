@@ -516,6 +516,10 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">eigvals</span></code>: array of <strong>real</strong> eigenvalues, descending order</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">eigvecs</span></code>: array of <strong>real</strong> vector-valued eigenmodes</p></li>
 </ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">solve_mode='dense'</span></code>, <em>all</em> eigenvalue-eigenvector pairs will be returned, and <code class="docutils literal notranslate"><span class="pre">Nmax</span></code> is ignored.</p>
+</div>
 <p>To count the number of guided modes, use</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_modes</span> <span class="o">=</span> <span class="n">FEsolver</span><span class="o">.</span><span class="n">count_modes</span><span class="p">(</span><span class="n">eigvals</span><span class="p">,</span><span class="n">wl</span><span class="p">,</span><span class="n">IOR_dict</span><span class="p">)</span>
 </pre></div>
