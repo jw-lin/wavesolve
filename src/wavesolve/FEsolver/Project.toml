@@ -5,6 +5,7 @@ authors = ["Jonathan Lin <90280749+jw-lin@users.noreply.github.com>"]
 
 [deps]
 Arpack = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
+JacobiDavidson = "11c68b98-9c9b-11e8-267b-bbb95576cead"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"

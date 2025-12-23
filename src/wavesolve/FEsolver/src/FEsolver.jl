@@ -5,6 +5,8 @@ using PythonCall
 using LinearAlgebra
 using SparseArrays
 using Arpack
+using JacobiDavidson
+import LinearAlgebra: ldiv!
 
 #region solvers
 
@@ -21,27 +23,93 @@ function solve_scalar(A::Symmetric{Float64, SparseMatrixCSC{Float64, Int64}},B::
     return w,v
 end
 
+struct SuperPreconditioner{numT <: Number}
+  target::numT
+  A::SparseMatrixCSC
+  B::SparseMatrixCSC
+  C::Symmetric{Float64, SparseMatrixCSC{Float64, Int64}}
+  D::Vector{Float64}
+end
+
+function SuperPreconditioner(target::Float64,A::SparseMatrixCSC,B::SparseMatrixCSC)
+    C = Symmetric(A .- target*B)
+    D = vec(Array(1/diag(C)))
+    SuperPreconditioner(target,A,B,C,D)
+end
+
+function ldiv!(p::SuperPreconditioner, x::AbstractVector{T}) where {T<:Number}
+  x .= p.C \ x
+  return x
+end
+
+function ldiv!(y::AbstractVector{T}, p::SuperPreconditioner, x::AbstractVector{T}) where {T<:Number}
+  y .= p.C \ x
+  return y
+end
+
+#function ldiv!(p::SuperPreconditioner, x::AbstractVector{T}) where {T<:Number}
+#  x .= p.D .* x # Jacobi precon
+#  return x
+#end
+#
+#function ldiv!(y::AbstractVector{T}, p::SuperPreconditioner, x::AbstractVector{T}) where {T<:Number}
+#  y .= p.D .* x
+#  return y
+#end
+
 function solve_vector(A::T,B::T,est_eigval::Float64,Nmax::Int64,solve_mode::String ; v0::Union{Vector{Float64},Nothing}=nothing) where T <: Union{SparseMatrixCSC{Float64, Int64},SparseMatrixCSC{ComplexF64, Int64}}
     # some notes:
     # A and B are real symmetric
     # B is indefinite, so plugging into eigs directly doesn't work
     # density of C matrix is near 1
     # smallest mag search doesn't work for shift-invert problem, only smallest real
-    
     if solve_mode == "sparse"
-        w,v = eigs(Symmetric(A),Symmetric(B),which=:LM,nev=Nmax,v0=v0)
-        w .= est_eigval .- (est_eigval ./ w)
-    elseif solve_mode == "schur"
-        F = schur(Symmetric(Array(A)),Symmetric(Array(B)))
-        v = F.right
-        w = F.α ./ F.β
+        # perform a partial generalized schur decomposition
+        # using Jacobi-Davidson method
+        # preconditioner is inverse of (A - est_eigval B)
+        # well really its like solving (A - est_eigval B) \ x , keep it sparse
+        # Petrov testspace seems to work better than Harmonic
+        # For symmetric/hermitian matrices, schur vectors are the same as eigenvectors (?)
+        targ = Near(ComplexF64(est_eigval))
+        P = SuperPreconditioner(est_eigval,A,B)
+        A,B = Symmetric(A),Symmetric(B)
+        n = size(A,1)
+        pschur, residuals = jdqz(
+            A, B,
+            solver = BiCGStabl(n, max_mv_products = 10, l = 2),
+            target = targ,
+            testspace = Petrov,
+            preconditioner = P,
+            pairs = Nmax,
+            tolerance = 1e-8,
+            subspace_dimensions = (Nmax+3):(Nmax+23),
+            max_iter = 1000,
+            verbosity = 1,
+        )
+        w = pschur.alphas ./ pschur.betas
+        v = pschur.Q.basis
+        # realize basis
+        for i in axes(v,2)
+            angles = angle.(v[:,i])
+            for k in eachindex(angles)
+                if angles[k] < 0
+                    angles[k] += 2π
+                    angles[k] = angles[k]%π
+                end
+            end
+            avgangle = sum(angles)/size(angles,1)
+            v[:,i] .*= exp(-avgangle * im)
+        end
         p = sortperm(w, by=real, rev=true)
-        w,v = w[p],v[:,p]
+        # manual cast to real, a little dangerous
+        w,v = real.(w[p]),real.(v[:,p])
     elseif solve_mode == "mixed"
+        # shift invert to Cx = λx
         C = (A .- est_eigval*B) \ Array(B)
         w,v = eigs(C,which=:SR,nev=Nmax)
         w = est_eigval .+ (1 ./ w) 
     elseif solve_mode == "dense"
+        # dense eigensolve
         A,B = Array(A),Array(B)
         C = (A .- est_eigval*B) \ B
         w,v = eigen(C,sortby=real)
@@ -177,13 +245,13 @@ function construct_AB_vec(points:: Array{Float64,2},tris::Array{Int64,2},edges::
         #Bzt = ComplexF64.(Bzt) * 1im
 
         #transformed version from Lee et al 1991
-        A = sparse(Is,Js,[Btt ; Btz  ; Bzt  ; Bzz],N,N)
-        B = sparse(Is,Js,[ (Btt .- (Att ./ shift))  ;  Btz ;  Bzt  ; Bzz],N,N)
+        #A = sparse(Is,Js,[Btt ; Btz  ; Bzt  ; Bzz],N,N)
+        #B = sparse(Is,Js,[ (Btt .- (Att ./ shift))  ;  Btz ;  Bzt  ; Bzz],N,N)
         
-        y = [ones(Float64,Ntt);zeros(Float64,Nzz)]
-        v0 = B \ y
-        #A = sparse(Is_t,Js_t,Att,N,N)
-        #B = sparse(Is,Js,[Btt ; Btz ; Bzt ; Bzz],N,N)
+        #y = [ones(Float64,Ntt);zeros(Float64,Nzz)]
+        #v0 = B \ y
+        A = sparse(Is_t,Js_t,Att,N,N)
+        B = sparse(Is,Js,[Btt ; Btz ; Bzt ; Bzz],N,N)
     else
         A = sparse(Is_t,Js_t,Att,N,N)
         B = sparse(Is,Js,[Btt ; Btz ; Bzt ; Bzz],N,N)
